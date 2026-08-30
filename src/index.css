@@ -1,0 +1,534 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   The app around the sheet
+   ------------------------------------------------------------------------ */
+
+:root {
+  --font-body: 'Heebo', 'Rubik', 'Arial Hebrew', 'David', system-ui, sans-serif;
+  --font-display: 'Rubik', 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: #eef2f7;
+  color: #0f172a;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.print-frame {
+  width: 100%;
+}
+
+/* Holds the height the scaled sheet visually occupies, so the page below it
+   doesn't sit under a transformed element. */
+.print-frame__scaler {
+  position: relative;
+  width: 100%;
+}
+
+.print-frame__sheet {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  transform-origin: top right;
+}
+
+/* ---------------------------------------------------------------------------
+   The sheet, measured in real millimetres at the chosen paper size
+   ------------------------------------------------------------------------ */
+
+.chart-sheet {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--sheet-w);
+  height: var(--sheet-h);
+  overflow: hidden;
+  color: var(--c-ink);
+  font-family: var(--font-body);
+  box-shadow: 0 18px 45px rgb(15 23 42 / 0.18);
+
+  /* The fallback scene: a ray burst behind everything, so the sheet still
+     looks like a poster before background.png exists. The artwork, when
+     present, is painted straight over it. */
+  background:
+    repeating-conic-gradient(
+      from 0deg at 50% 34%,
+      rgb(255 255 255 / 0.12) 0deg 5deg,
+      transparent 5deg 11deg
+    ),
+    radial-gradient(
+      130% 95% at 50% 26%,
+      var(--c-sceneLight) 0%,
+      var(--c-scene) 52%,
+      var(--c-sceneDark) 100%
+    );
+}
+
+.sheet-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--sheet-pad);
+}
+
+/* --- decorative artwork --------------------------------------------------- */
+
+.deco {
+  pointer-events: none;
+  user-select: none;
+}
+
+.deco--background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The ornamental border, drawn over everything else. */
+.deco--frame {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.deco--hero {
+  height: 100%;
+  width: auto;
+  max-width: calc(46mm * var(--k));
+  object-fit: contain;
+  object-position: bottom;
+  flex: 0 0 auto;
+}
+
+/* The character strips down the gutters. One file, mirrored on the left. */
+.deco--cast {
+  width: var(--gutter-w);
+  height: 100%;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.deco--cast-flip {
+  transform: scaleX(-1);
+}
+
+/* --- fallbacks for artwork that hasn't been generated yet ----------------- */
+
+.asset-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(3mm * var(--k));
+  background: rgb(255 255 255 / 0.22);
+  border: calc(0.5mm * var(--k)) dashed rgb(255 255 255 / 0.65);
+  box-sizing: border-box;
+}
+
+.asset-fallback.deco--hero {
+  aspect-ratio: 0.8;
+  width: auto;
+}
+
+.asset-fallback.deco--cast {
+  flex-direction: column;
+  gap: calc(6mm * var(--k));
+  padding: calc(4mm * var(--k)) 0;
+}
+
+.asset-fallback.deco--frame {
+  background: transparent;
+  border-style: solid;
+  border-width: calc(2.2mm * var(--k));
+  border-color: var(--c-accent);
+  border-radius: calc(5mm * var(--k));
+  box-shadow:
+    inset 0 0 0 calc(0.7mm * var(--k)) var(--c-accentDark),
+    0 0 0 calc(0.7mm * var(--k)) var(--c-accentDark) inset;
+}
+
+.asset-fallback.deco--frame .asset-fallback__glyph {
+  display: none;
+}
+
+.asset-fallback__glyph {
+  font-size: calc(10mm * var(--k));
+  line-height: 1;
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.sheet-header {
+  display: flex;
+  height: var(--header-h);
+  align-items: flex-end;
+  gap: calc(2mm * var(--k));
+  flex: 0 0 auto;
+  padding: 0 calc(4mm * var(--k));
+  box-sizing: border-box;
+}
+
+.sheet-header__balance {
+  flex: 0 0 auto;
+  width: calc(46mm * var(--k));
+}
+
+.sheet-header__titles {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  padding-bottom: calc(1mm * var(--k));
+}
+
+/* Topic and month, on a ribbon above the name. */
+.sheet-eyebrow {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(6.2mm * var(--k));
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c-eyebrowFill);
+  text-shadow:
+    calc(0.5mm * var(--k)) 0 0 var(--c-eyebrowStroke),
+    calc(-0.5mm * var(--k)) 0 0 var(--c-eyebrowStroke),
+    0 calc(0.5mm * var(--k)) 0 var(--c-eyebrowStroke),
+    0 calc(-0.5mm * var(--k)) 0 var(--c-eyebrowStroke),
+    calc(0.4mm * var(--k)) calc(0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
+    calc(-0.4mm * var(--k)) calc(0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
+    calc(0.4mm * var(--k)) calc(-0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
+    calc(-0.4mm * var(--k)) calc(-0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
+    0 calc(1.1mm * var(--k)) calc(0.6mm * var(--k)) rgb(0 0 0 / 0.35);
+}
+
+/* The child's name, poster-sized: a white keyline, a dark keyline outside
+   that, and a hard drop shadow. Built from layered text-shadows rather than
+   -webkit-text-stroke, which thins the glyphs by drawing over the fill. */
+.sheet-name {
+  margin: calc(0.5mm * var(--k)) 0 0;
+  font-family: var(--font-display);
+  font-size: calc(20mm * var(--k));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: calc(-0.4mm * var(--k));
+  color: var(--c-nameFill);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow:
+    calc(1.1mm * var(--k)) 0 0 var(--c-nameStroke),
+    calc(-1.1mm * var(--k)) 0 0 var(--c-nameStroke),
+    0 calc(1.1mm * var(--k)) 0 var(--c-nameStroke),
+    0 calc(-1.1mm * var(--k)) 0 var(--c-nameStroke),
+    calc(0.8mm * var(--k)) calc(0.8mm * var(--k)) 0 var(--c-nameStroke),
+    calc(-0.8mm * var(--k)) calc(0.8mm * var(--k)) 0 var(--c-nameStroke),
+    calc(0.8mm * var(--k)) calc(-0.8mm * var(--k)) 0 var(--c-nameStroke),
+    calc(-0.8mm * var(--k)) calc(-0.8mm * var(--k)) 0 var(--c-nameStroke),
+    calc(1.9mm * var(--k)) 0 0 var(--c-nameShadow),
+    calc(-1.9mm * var(--k)) 0 0 var(--c-nameShadow),
+    0 calc(1.9mm * var(--k)) 0 var(--c-nameShadow),
+    0 calc(-1.9mm * var(--k)) 0 var(--c-nameShadow),
+    calc(1.4mm * var(--k)) calc(1.4mm * var(--k)) 0 var(--c-nameShadow),
+    calc(-1.4mm * var(--k)) calc(1.4mm * var(--k)) 0 var(--c-nameShadow),
+    calc(1.4mm * var(--k)) calc(-1.4mm * var(--k)) 0 var(--c-nameShadow),
+    calc(-1.4mm * var(--k)) calc(-1.4mm * var(--k)) 0 var(--c-nameShadow),
+    0 calc(3mm * var(--k)) calc(1.5mm * var(--k)) rgb(0 0 0 / 0.4);
+}
+
+/* --- body: gutters + the calendar panel ----------------------------------- */
+
+.sheet-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: stretch;
+  gap: calc(1mm * var(--k));
+}
+
+.grid-panel {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--panel-pad);
+  gap: var(--cell-gap);
+  border-radius: calc(3.5mm * var(--k));
+  background: var(--c-panel);
+  border: calc(1mm * var(--k)) solid var(--c-accent);
+  box-shadow:
+    0 0 0 calc(0.4mm * var(--k)) var(--c-primaryDark),
+    0 calc(1.5mm * var(--k)) calc(3mm * var(--k)) rgb(0 0 0 / 0.28);
+}
+
+/* --- weekday header row --------------------------------------------------- */
+
+.dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--cell-gap);
+  height: var(--dow-h);
+  flex: 0 0 auto;
+}
+
+.dow-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(1.6mm * var(--k));
+  background: var(--c-primary);
+  color: #fff;
+  font-size: calc(3.7mm * var(--k));
+  font-weight: 700;
+  text-align: center;
+}
+
+.dow-cell--shabbat {
+  background: var(--c-accent);
+  color: var(--c-ink);
+}
+
+/* The short form is a safety net for narrow columns; only one is ever shown. */
+.dow-cell__short {
+  display: none;
+}
+
+/* --- the month grid ------------------------------------------------------- */
+
+/* Rows share out whatever height is left rather than each taking a fixed
+   --row-h, so the grid still fills the panel exactly if a browser rounds the
+   paper size a hair. (--row-h is what the sticker sizing is derived from.) */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  gap: var(--cell-gap);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.day-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--inner-pad);
+  border: calc(0.35mm * var(--k)) solid
+    color-mix(in srgb, var(--c-grid) 85%, var(--c-ink));
+  border-radius: calc(1.6mm * var(--k));
+  background: var(--c-cell);
+  overflow: hidden;
+}
+
+.day-cell--shabbat {
+  background: var(--c-shabbat);
+  border-color: var(--c-accentDark);
+}
+
+/* Empty leading/trailing cells: present, but visibly not days. */
+.day-cell--empty {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--c-grid) 55%, transparent);
+  background: transparent;
+}
+
+/* In RTL, flex-start is the right-hand side — the natural leading corner. */
+.day-cell__date {
+  align-self: flex-start;
+  height: var(--date-h);
+  font-family: var(--font-display);
+  font-size: calc(4.2mm * var(--k));
+  font-weight: 700;
+  line-height: var(--date-h);
+  color: var(--c-primaryDark);
+}
+
+.day-cell--shabbat .day-cell__date {
+  color: var(--c-ink);
+}
+
+/* --- sticker placeholders ------------------------------------------------- */
+
+.sticker-row {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--slot-gap);
+  min-height: 0;
+}
+
+.sticker-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.4mm * var(--k));
+}
+
+.sticker-circle {
+  width: var(--sticker-d);
+  height: var(--sticker-d);
+  border-radius: 50%;
+  background: #fff;
+  /* A neutral, printable stroke rather than a theme tint: the circle has to
+     stay obvious on a black-and-white printer too. */
+  border: calc(0.45mm * var(--k)) solid
+    color-mix(in srgb, var(--c-ink) 32%, #ffffff);
+  box-sizing: border-box;
+}
+
+.slot-label {
+  display: flex;
+  align-items: center;
+  gap: calc(0.6mm * var(--k));
+  height: var(--slot-label-h);
+  font-size: calc(2.7mm * var(--k));
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-primaryDark);
+}
+
+.slot-label__icon {
+  width: calc(3mm * var(--k));
+  height: calc(3mm * var(--k));
+}
+
+.slot-label--morning .slot-label__icon {
+  color: var(--c-accentDark);
+}
+
+.slot-label--evening .slot-label__icon {
+  color: var(--c-primary);
+}
+
+/* --- footer plaque -------------------------------------------------------- */
+
+.sheet-footer {
+  display: flex;
+  height: var(--footer-h);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.plaque {
+  display: flex;
+  align-items: center;
+  gap: calc(3mm * var(--k));
+  padding: calc(1.6mm * var(--k)) calc(9mm * var(--k));
+  border-radius: calc(2.5mm * var(--k));
+  background: var(--c-plaque);
+  border: calc(0.8mm * var(--k)) solid var(--c-accent);
+  box-shadow:
+    inset 0 0 0 calc(0.4mm * var(--k)) rgb(255 255 255 / 0.35),
+    0 calc(1mm * var(--k)) calc(2mm * var(--k)) rgb(0 0 0 / 0.3);
+}
+
+.plaque__text {
+  font-family: var(--font-display);
+  font-size: calc(5.4mm * var(--k));
+  font-weight: 700;
+  line-height: 1.1;
+  color: #fff;
+}
+
+.plaque__star {
+  font-size: calc(4.4mm * var(--k));
+  line-height: 1;
+  color: var(--c-accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Print
+   ------------------------------------------------------------------------ */
+
+/* The `size` descriptor is rewritten from App.jsx, because @page cannot read
+   a CSS custom property. This is the fallback until that runs. */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+@media print {
+  /* Force the themed backgrounds onto paper instead of letting the browser
+     helpfully drop them. */
+  html,
+  body,
+  .chart-sheet,
+  .chart-sheet * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Everything that isn't the chart leaves the page entirely. */
+  .no-print {
+    display: none !important;
+  }
+
+  .app-shell,
+  .app-shell > * {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    min-height: 0 !important;
+    gap: 0 !important;
+  }
+
+  .print-frame,
+  .print-frame__scaler {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Back to 1:1 — on paper the sheet is already exactly page-sized. */
+  .print-frame__sheet {
+    position: static !important;
+    transform: none !important;
+  }
+
+  /* The sheet keeps its exact millimetre size — it was built to be the page.
+     html/body clip instead of scrolling, so the fraction of a pixel browsers
+     lose rounding the paper size can't spill a blank second page. */
+  html,
+  body {
+    overflow: hidden !important;
+  }
+
+  .chart-sheet {
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* A single sheet, never a trailing blank page. */
+  .chart-sheet::after {
+    content: none;
+  }
+}

@@ -1,0 +1,81 @@
+import { useEffect, useMemo, useState } from 'react'
+import ControlPanel from './components/ControlPanel'
+import ChartPreview from './components/ChartPreview'
+import { buildMonthGrid, currentHebrewMonth } from './lib/hebrewCalendar'
+import { computeLayout } from './lib/layout'
+import { getTheme } from './lib/themes'
+import { HDate } from '@hebcal/core'
+
+const today = currentHebrewMonth()
+
+const INITIAL_SETTINGS = {
+  childName: '',
+  topic: 'טבלת הצחצוח שלי',
+  stickersPerDay: 1,
+  paperId: 'A4',
+  month: today.month,
+  year: today.year,
+  themeId: 'rescue-blue',
+}
+
+export default function App() {
+  const [settings, setSettings] = useState(INITIAL_SETTINGS)
+
+  const update = (patch) => setSettings((prev) => ({ ...prev, ...patch }))
+
+  // Adar II only exists in a leap year, so a year change can strand month 13
+  // with no month for hebcal to describe. Resolved on the way out rather than
+  // written back to state, which keeps the dropdown and the sheet in step.
+  const month =
+    settings.month === 13 && !HDate.isLeapYear(settings.year)
+      ? 12
+      : settings.month
+  const resolved = { ...settings, month }
+
+  const theme = useMemo(() => getTheme(settings.themeId), [settings.themeId])
+
+  const grid = useMemo(
+    () => buildMonthGrid(month, settings.year),
+    [month, settings.year],
+  )
+
+  const layout = useMemo(
+    () =>
+      computeLayout({
+        paperId: settings.paperId,
+        weeks: grid.weeks,
+        stickersPerDay: Number(settings.stickersPerDay),
+      }),
+    [settings.paperId, settings.stickersPerDay, grid.weeks],
+  )
+
+  // `size` inside @page cannot read a CSS custom property, so the rule is
+  // rewritten whenever the paper size changes.
+  useEffect(() => {
+    const id = 'dynamic-page-rule'
+    const style =
+      document.getElementById(id) ??
+      document.head.appendChild(
+        Object.assign(document.createElement('style'), { id }),
+      )
+    style.textContent = `@page { size: ${settings.paperId} landscape; margin: 0; }`
+  }, [settings.paperId])
+
+  return (
+    <div className="app-shell" dir="rtl" lang="he">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-8 p-4 md:p-8 lg:flex-row lg:items-start">
+        <ControlPanel
+          settings={resolved}
+          onChange={update}
+          onPrint={() => window.print()}
+        />
+        <ChartPreview
+          theme={theme}
+          layout={layout}
+          grid={grid}
+          settings={resolved}
+        />
+      </div>
+    </div>
+  )
+}
