@@ -12,6 +12,21 @@ beside it sets the text, the size, the tilt, the font, the shape (pill, card,
 or words with no ground behind them), the colours, and whether it appears at
 all.
 
+Any number of images can be dropped in alongside them — a photo of the child,
+a cut-out character, a school logo. They drag, scale and tilt like everything
+else, and choose how they meet the page: straight, rounded, circular, framed
+in a colour you pick, or **feathered**, where the picture fades out into
+whatever is behind it instead of ending on a hard line. The feathering is a
+mask rather than a shadow, because the page behind it is artwork, not a flat
+colour to blend against — and it survives the print pipeline, checked against
+a rasterised PDF rather than assumed.
+
+Imported images are capped at 1600px on the long edge. A phone photo is 4000px
+and several megabytes; held as a data URL and pushed through the print
+pipeline, that is enough to make the preview stutter. A decorative image sits
+at roughly a quarter of an A4 sheet — about 74mm — where 1600px is still over
+500dpi, past anything a printer resolves.
+
 Each font option carries its own weight. Suez One, Secular One and Varela
 Round ship a single 400 face, and asking a browser for 600 on one of those
 gets a synthesised bold — thicker on one axis than the other, and visibly
@@ -97,6 +112,7 @@ src/
     themes.js                palettes + artwork paths
     elements.js              the movable elements and their defaults
     fonts.js                 the families a heading can be set in
+    loadImage.js             reads a picked file, downscaled, as a data URL
   components/
     ControlPanel.jsx         the form (hidden at print time)
     ElementInspector.jsx     properties for the selected floating element
@@ -203,6 +219,8 @@ Checked in Chromium against a real print run:
   selection outline does not.
 - Every font option loads from the bundle rather than falling back silently,
   and a single-weight face renders at its own weight.
+- An imported image drags, tilts, scales, cycles all five edge treatments and
+  deletes; the feathered edge is still feathered in the rasterised PDF.
 
 ---
 

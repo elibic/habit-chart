@@ -4,6 +4,7 @@ import FloatingElement from './FloatingElement'
 import { SunIcon, MoonIcon } from './Icons'
 import { WEEKDAY_NAMES, WEEKDAY_SHORT } from '../lib/hebrewCalendar'
 import { assetPath, themeCssVars } from '../lib/themes'
+import { orderedIds } from '../lib/elements'
 import { layoutCssVars } from '../lib/layout'
 
 /**
@@ -156,6 +157,23 @@ export default function ChartSheet({
           but below the frame, and is positioned in percentages of the sheet
           so a layout arranged on A4 lands the same way on A3. */}
       <div className="overlay">
+        {orderedIds(elements)
+          .filter((id) => elements[id].kind === 'image')
+          .map((id) => (
+            <FloatingElement
+              key={id}
+              id={id}
+              element={elements[id]}
+              selected={selectedId === id}
+              onSelect={onSelect}
+              onMove={onMove}
+              editable={editable}
+              className={`sheet-image sheet-image--${elements[id].edge}`}
+            >
+              <img src={elements[id].src} alt="" draggable="false" />
+            </FloatingElement>
+          ))}
+
         <FloatingElement
           id="topic"
           element={elements.topic}

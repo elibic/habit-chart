@@ -13,7 +13,14 @@
 
 import { fontStack, getFont } from './fonts'
 
-export const ELEMENT_IDS = ['topic', 'name', 'dateChip', 'plaque']
+/** The four that always exist. Images are added alongside them at runtime. */
+export const FIXED_IDS = ['topic', 'name', 'dateChip', 'plaque']
+
+/** Images first, so a heading is never buried under a photo. */
+export function orderedIds(elements) {
+  const images = Object.keys(elements).filter((id) => elements[id].kind === 'image')
+  return [...images, ...FIXED_IDS]
+}
 
 export const ELEMENT_DEFS = {
   topic: {
@@ -55,8 +62,39 @@ export const STYLE_OPTIONS = [
 
 export function defaultElements() {
   return Object.fromEntries(
-    ELEMENT_IDS.map((id) => [id, { ...ELEMENT_DEFS[id].defaults }]),
+    FIXED_IDS.map((id) => [id, { kind: 'text', ...ELEMENT_DEFS[id].defaults }]),
   )
+}
+
+/** How an image meets the page. */
+export const EDGE_OPTIONS = [
+  { value: 'plain', label: 'ישר' },
+  { value: 'rounded', label: 'פינות' },
+  { value: 'circle', label: 'עיגול' },
+  { value: 'soft', label: 'טשטוש' },
+  { value: 'frame', label: 'מסגרת' },
+]
+
+let imageCounter = 0
+export function newImageElement(src) {
+  imageCounter += 1
+  return {
+    id: `image-${Date.now()}-${imageCounter}`,
+    element: {
+      kind: 'image',
+      src,
+      visible: true,
+      x: 50,
+      y: 50,
+      scale: 1,
+      rotate: 0,
+      edge: 'rounded',
+      frameColor: '#ffffff',
+      // Images start at a quarter of the sheet's width; `scale` takes it from
+      // there, so one slider covers size for both kinds of element.
+      width: 25,
+    },
+  }
 }
 
 /** Position, size, tilt, font and any colour overrides, as inline CSS. */
@@ -69,6 +107,11 @@ export function elementStyle(el) {
   }
   if (el.bg) style['--el-bg'] = el.bg
   if (el.fg) style['--el-fg'] = el.fg
+  if (el.kind === 'image') {
+    style.width = `${el.width}%`
+    style['--el-frame'] = el.frameColor
+    return style
+  }
   const stack = fontStack(el.font)
   if (stack) {
     style['--el-font'] = stack

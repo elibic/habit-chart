@@ -27,6 +27,8 @@ export default function ControlPanel({
   onSelect,
   onElementChange,
   onElementReset,
+  onAddImage,
+  onRemoveElement,
 }) {
   const set = (key) => (event) => onChange({ [key]: event.target.value })
 
@@ -299,6 +301,8 @@ export default function ControlPanel({
           onSelect={onSelect}
           onElementChange={onElementChange}
           onElementReset={onElementReset}
+          onAddImage={onAddImage}
+          onRemoveElement={onRemoveElement}
         />
 
         <button

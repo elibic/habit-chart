@@ -210,6 +210,51 @@ body {
   outline-offset: 4px;
 }
 
+/* --- dropped-in images ---------------------------------------------------- */
+
+.sheet-image {
+  line-height: 0;
+}
+
+.sheet-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sheet-image--rounded img {
+  border-radius: calc(4mm * var(--k));
+}
+
+.sheet-image--circle img {
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Feathered, not cropped: the picture fades out into whatever is behind it
+   instead of ending on a hard line. A mask rather than a shadow, because the
+   page behind it is artwork, not a flat colour to blend against. */
+.sheet-image--soft img {
+  -webkit-mask-image: radial-gradient(
+    ellipse 74% 74% at 50% 50%,
+    #000 55%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 74% 74% at 50% 50%,
+    #000 55%,
+    transparent 100%
+  );
+}
+
+.sheet-image--frame img {
+  border: calc(1.6mm * var(--k)) solid var(--el-frame, #fff);
+  border-radius: calc(1.2mm * var(--k));
+  box-shadow: 0 calc(1.2mm * var(--k)) calc(3mm * var(--k)) rgb(0 0 0 / 0.28);
+  box-sizing: border-box;
+}
+
 /* --- shape variants ------------------------------------------------------- */
 
 .floating--pill {

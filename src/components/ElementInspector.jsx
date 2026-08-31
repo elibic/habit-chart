@@ -1,4 +1,10 @@
-import { ELEMENT_DEFS, ELEMENT_IDS, STYLE_OPTIONS } from '../lib/elements'
+import { useRef, useState } from 'react'
+import {
+  EDGE_OPTIONS,
+  ELEMENT_DEFS,
+  STYLE_OPTIONS,
+  orderedIds,
+} from '../lib/elements'
 import { FONT_OPTIONS } from '../lib/fonts'
 
 const label = 'text-sm font-bold text-slate-700'
@@ -20,9 +26,26 @@ export default function ElementInspector({
   onSelect,
   onElementChange,
   onElementReset,
+  onAddImage,
+  onRemoveElement,
 }) {
-  const def = selectedId ? ELEMENT_DEFS[selectedId] : null
+  const fileInput = useRef(null)
+  const [error, setError] = useState(null)
   const el = selectedId ? elements[selectedId] : null
+  const isImage = el?.kind === 'image'
+  const def = !isImage && selectedId ? ELEMENT_DEFS[selectedId] : null
+
+  const pick = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    setError(null)
+    try {
+      await onAddImage(file)
+    } catch (problem) {
+      setError(problem.message)
+    }
+  }
 
   return (
     <div className="no-print flex flex-col gap-3 rounded-2xl bg-slate-50 p-4">
@@ -32,9 +55,10 @@ export default function ElementInspector({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        {ELEMENT_IDS.map((id) => {
+        {orderedIds(elements).map((id) => {
           const active = selectedId === id
           const hidden = !elements[id].visible
+          const image = elements[id].kind === 'image'
           return (
             <button
               key={id}
@@ -47,14 +71,36 @@ export default function ElementInspector({
               }`}
             >
               <span className="block text-sm font-bold text-slate-800">
-                {ELEMENT_DEFS[id].label}
+                {image ? '🖼️ תמונה' : ELEMENT_DEFS[id].label}
               </span>
               <span className="block text-xs text-slate-500">
-                {hidden ? 'מוסתר' : ELEMENT_DEFS[id].hint}
+                {hidden
+                  ? 'מוסתר'
+                  : image
+                    ? 'שנוספה על ידכם'
+                    : ELEMENT_DEFS[id].hint}
               </span>
             </button>
           )
         })}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() => fileInput.current?.click()}
+          className="rounded-xl border-2 border-dashed border-slate-300 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-sky-400 hover:text-sky-700"
+        >
+          ＋ הוספת תמונה
+        </button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={pick}
+        />
+        {error && <p className="text-xs font-bold text-red-600">{error}</p>}
       </div>
 
       {!el && (
@@ -66,7 +112,7 @@ export default function ElementInspector({
 
       {el && (
         <div className="flex flex-col gap-3 border-t border-slate-200 pt-3">
-          {def.textKey && (
+          {def?.textKey && (
             <div className="flex flex-col gap-1.5">
               <label className={label} htmlFor="el-text">
                 {def.textLabel}
@@ -91,8 +137,8 @@ export default function ElementInspector({
             <input
               id="el-scale"
               type="range"
-              min="0.4"
-              max="2"
+              min={isImage ? '0.2' : '0.4'}
+              max={isImage ? '4' : '2'}
               step="0.05"
               value={el.scale}
               onChange={(event) =>
@@ -124,6 +170,7 @@ export default function ElementInspector({
             />
           </div>
 
+          {!isImage && (
           <div className="flex flex-col gap-1.5">
             <label className={label} htmlFor="el-font">
               גופן
@@ -143,19 +190,25 @@ export default function ElementInspector({
               ))}
             </select>
           </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
-            <span className={label}>צורה</span>
+            <span className={label}>{isImage ? 'הקצוות' : 'צורה'}</span>
             <div className="grid grid-cols-3 gap-2">
-              {STYLE_OPTIONS.map((option) => (
+              {(isImage ? EDGE_OPTIONS : STYLE_OPTIONS).map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() =>
-                    onElementChange(selectedId, { style: option.value })
+                    onElementChange(
+                      selectedId,
+                      isImage
+                        ? { edge: option.value }
+                        : { style: option.value },
+                    )
                   }
                   className={`rounded-lg border-2 px-2 py-1.5 text-sm font-bold transition ${
-                    el.style === option.value
+                    (isImage ? el.edge : el.style) === option.value
                       ? 'border-sky-500 bg-sky-50 text-slate-900'
                       : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                   }`}
@@ -166,22 +219,38 @@ export default function ElementInspector({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <ColorField
-              id="el-bg"
-              text="צבע רקע"
-              value={el.bg}
-              fallback="#ffffff"
-              onPick={(bg) => onElementChange(selectedId, { bg })}
-            />
-            <ColorField
-              id="el-fg"
-              text="צבע טקסט"
-              value={el.fg}
-              fallback="#1f2937"
-              onPick={(fg) => onElementChange(selectedId, { fg })}
-            />
-          </div>
+          {isImage ? (
+            el.edge === 'frame' && (
+              <ColorField
+                id="el-frame"
+                text="צבע המסגרת"
+                value={el.frameColor}
+                fallback="#ffffff"
+                onPick={(frameColor) =>
+                  onElementChange(selectedId, {
+                    frameColor: frameColor ?? '#ffffff',
+                  })
+                }
+              />
+            )
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <ColorField
+                id="el-bg"
+                text="צבע רקע"
+                value={el.bg}
+                fallback="#ffffff"
+                onPick={(bg) => onElementChange(selectedId, { bg })}
+              />
+              <ColorField
+                id="el-fg"
+                text="צבע טקסט"
+                value={el.fg}
+                fallback="#1f2937"
+                onPick={(fg) => onElementChange(selectedId, { fg })}
+              />
+            </div>
+          )}
 
           <div className="flex gap-2">
             <button
@@ -193,13 +262,23 @@ export default function ElementInspector({
             >
               {el.visible ? 'הסתרה' : 'הצגה'}
             </button>
-            <button
-              type="button"
-              onClick={() => onElementReset(selectedId)}
-              className="flex-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-slate-300"
-            >
-              איפוס
-            </button>
+            {isImage ? (
+              <button
+                type="button"
+                onClick={() => onRemoveElement(selectedId)}
+                className="flex-1 rounded-xl border-2 border-red-200 bg-white px-3 py-2 text-sm font-bold text-red-700 transition hover:border-red-300"
+              >
+                מחיקה
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onElementReset(selectedId)}
+                className="flex-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-slate-300"
+              >
+                איפוס
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -8,7 +8,8 @@ import {
 } from './lib/hebrewCalendar'
 import { computeLayout } from './lib/layout'
 import { getTheme } from './lib/themes'
-import { defaultElements, ELEMENT_DEFS } from './lib/elements'
+import { defaultElements, ELEMENT_DEFS, newImageElement } from './lib/elements'
+import { loadImageFile } from './lib/loadImage'
 import { HDate } from '@hebcal/core'
 
 const today = currentHebrewMonth()
@@ -41,7 +42,25 @@ export default function App() {
     setElements((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }))
 
   const resetElement = (id) =>
-    setElements((prev) => ({ ...prev, [id]: { ...ELEMENT_DEFS[id].defaults } }))
+    setElements((prev) =>
+      ELEMENT_DEFS[id]
+        ? { ...prev, [id]: { kind: 'text', ...ELEMENT_DEFS[id].defaults } }
+        : prev,
+    )
+
+  const addImage = async (file) => {
+    const src = await loadImageFile(file)
+    const { id, element } = newImageElement(src)
+    setElements((prev) => ({ ...prev, [id]: element }))
+    setSelectedId(id)
+  }
+
+  const removeElement = (id) =>
+    setElements((prev) => {
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
 
   // Adar II only exists in a leap year, so a year change can strand month 13
   // with no month for hebcal to describe. Resolved on the way out rather than
@@ -108,6 +127,11 @@ export default function App() {
           onSelect={setSelectedId}
           onElementChange={updateElement}
           onElementReset={resetElement}
+          onAddImage={addImage}
+          onRemoveElement={(id) => {
+            removeElement(id)
+            setSelectedId(null)
+          }}
         />
         <ChartPreview
           theme={theme}
