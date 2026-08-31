@@ -8,6 +8,13 @@ import { createRoot } from 'react-dom/client'
 // turn a 70 kB deploy of type into a 2 MB one.
 import '@fontsource/fredoka/hebrew-600.css'
 import '@fontsource/fredoka/latin-600.css'
+// The families a heading can be set to. Single-weight faces are imported at
+// the only weight they have; see lib/fonts.js.
+import '@fontsource/suez-one/hebrew-400.css'
+import '@fontsource/secular-one/hebrew-400.css'
+import '@fontsource/varela-round/hebrew-400.css'
+import '@fontsource/amatic-sc/hebrew-700.css'
+import '@fontsource/rubik/hebrew-700.css'
 import '@fontsource/heebo/hebrew-400.css'
 import '@fontsource/heebo/hebrew-700.css'
 import '@fontsource/heebo/hebrew-900.css'

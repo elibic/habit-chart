@@ -8,8 +8,14 @@ empty white circle for every day — one circle, or two labelled בוקר and ע
 The four things that float over the sheet — the topic ribbon, the child's
 name, the date chip and the footer plaque — can be picked up and moved. Click
 one in the preview and drag it, or nudge it with the arrow keys; the panel
-beside it sets the text, the size, the shape (pill, card, or words with no
-ground behind them), the colours, and whether it appears at all.
+beside it sets the text, the size, the tilt, the font, the shape (pill, card,
+or words with no ground behind them), the colours, and whether it appears at
+all.
+
+Each font option carries its own weight. Suez One, Secular One and Varela
+Round ship a single 400 face, and asking a browser for 600 on one of those
+gets a synthesised bold — thicker on one axis than the other, and visibly
+wrong in print.
 
 Positions are stored as percentages of the sheet rather than millimetres, so a
 layout arranged on A4 lands in the same place on A3. Colours stay `null` until
@@ -90,6 +96,7 @@ src/
     layout.js                page geometry, in millimetres
     themes.js                palettes + artwork paths
     elements.js              the movable elements and their defaults
+    fonts.js                 the families a heading can be set in
   components/
     ControlPanel.jsx         the form (hidden at print time)
     ElementInspector.jsx     properties for the selected floating element
@@ -191,8 +198,11 @@ Checked in Chromium against a real print run:
   420×297 mm (A3).
 - Every artwork slot missing: the page still renders and prints complete, on
   its CSS fallbacks.
-- Dragging, resizing, recolouring, restyling, hiding and resetting a floating
-  element; the edits survive into the PDF and the selection outline does not.
+- Dragging, resizing, tilting, recolouring, restyling, refacing, hiding and
+  resetting a floating element; the edits survive into the PDF and the
+  selection outline does not.
+- Every font option loads from the bundle rather than falling back silently,
+  and a single-weight face renders at its own weight.
 
 ---
 

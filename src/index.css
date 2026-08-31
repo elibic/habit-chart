@@ -186,7 +186,8 @@ body {
   position: absolute;
   /* left/top place the element's centre, which is what makes dragging feel
      right — you grab the middle and it stays under the pointer. */
-  transform: translate(-50%, -50%) scale(var(--el-scale, 1));
+  transform: translate(-50%, -50%) rotate(var(--el-rotate, 0deg))
+    scale(var(--el-scale, 1));
   transform-origin: center;
   max-width: 92%;
   margin: 0;
@@ -247,9 +248,9 @@ body {
   padding: calc(1.5mm * var(--k)) calc(7mm * var(--k));
   background: var(--el-bg);
   box-shadow: 0 calc(1mm * var(--k)) calc(2.4mm * var(--k)) rgb(0 0 0 / 0.22);
-  font-family: var(--font-display);
+  font-family: var(--el-font, var(--font-display));
   font-size: calc(5.4mm * var(--k));
-  font-weight: 500;
+  font-weight: var(--el-weight, 500);
   line-height: 1.2;
   color: var(--el-fg);
   text-align: center;
@@ -264,9 +265,9 @@ body {
 .sheet-name {
   margin: 0;
   max-width: 100%;
-  font-family: var(--font-display);
+  font-family: var(--el-font, var(--font-display));
   font-size: calc(19mm * var(--k));
-  font-weight: 600;
+  font-weight: var(--el-weight, 600);
   line-height: 1;
   letter-spacing: calc(-0.35mm * var(--k));
   /* Bright fill over a darker extrude — the depth has to fall away from the
@@ -300,13 +301,14 @@ body {
   padding: calc(2.4mm * var(--k)) calc(2.5mm * var(--k));
   background: var(--el-bg);
   box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k)) rgb(0 0 0 / 0.2);
-  font-family: var(--font-display);
+  font-family: var(--el-font, var(--font-display));
+  font-weight: var(--el-weight, 500);
   color: var(--el-fg);
   text-align: center;
 }
 
 .date-chip__tag {
-  font-family: var(--font-body);
+  font-family: var(--el-font, var(--font-body));
   font-size: calc(2.9mm * var(--k));
   font-weight: 700;
   color: color-mix(in srgb, var(--c-ink) 55%, #fff);
@@ -329,7 +331,7 @@ body {
 }
 
 .date-chip__year {
-  font-family: var(--font-body);
+  font-family: var(--el-font, var(--font-body));
   font-size: calc(3.2mm * var(--k));
   font-weight: 700;
   color: color-mix(in srgb, var(--c-ink) 55%, #fff);
@@ -553,9 +555,9 @@ body {
 }
 
 .plaque__text {
-  font-family: var(--font-display);
+  font-family: var(--el-font, var(--font-display));
   font-size: calc(5.2mm * var(--k));
-  font-weight: 500;
+  font-weight: var(--el-weight, 500);
   line-height: 1.15;
   color: var(--el-fg);
 }

@@ -1,4 +1,5 @@
 import { ELEMENT_DEFS, ELEMENT_IDS, STYLE_OPTIONS } from '../lib/elements'
+import { FONT_OPTIONS } from '../lib/fonts'
 
 const label = 'text-sm font-bold text-slate-700'
 const input =
@@ -101,6 +102,46 @@ export default function ElementInspector({
               }
               className="w-full accent-sky-600"
             />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className={label} htmlFor="el-rotate">
+              הטיה — {el.rotate}°
+            </label>
+            <input
+              id="el-rotate"
+              type="range"
+              min="-25"
+              max="25"
+              step="1"
+              value={el.rotate}
+              onChange={(event) =>
+                onElementChange(selectedId, {
+                  rotate: Number(event.target.value),
+                })
+              }
+              className="w-full accent-sky-600"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className={label} htmlFor="el-font">
+              גופן
+            </label>
+            <select
+              id="el-font"
+              className={input}
+              value={el.font}
+              onChange={(event) =>
+                onElementChange(selectedId, { font: event.target.value })
+              }
+            >
+              {FONT_OPTIONS.map((font) => (
+                <option key={font.id} value={font.id}>
+                  {font.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex flex-col gap-1.5">
