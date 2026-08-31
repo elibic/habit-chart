@@ -89,8 +89,8 @@ public/assets/<theme>/       your generated PNGs — see public/assets/README.md
 
 The sheet is laid out as a poster, not a worksheet: a full-bleed illustrated
 background, a strip of characters down each side gutter, a hero character
-beside a poster-sized name, and the calendar as white day cards floating on a
-faintly tinted panel. All of that comes from four PNGs per theme
+beside a poster-sized name, and the calendar as white day cards floating
+straight on the artwork. All of that comes from four PNGs per theme
 (`background`, `frame`, `cast`, `hero`), and every one of them is optional —
 the CSS fallback paints a tinted ground with two soft blobs and a confetti
 scatter, so the page prints as a finished poster before you generate a single
@@ -102,6 +102,12 @@ supplies, and no amount of good typography rescues a page built on them. What
 replaced them: soft organic blobs, one confident accent per theme, borderless
 cards with gentle shadows, generously rounded corners, and type that carries
 its weight by being chunky rather than outlined.
+
+Two things the artwork forced. The cards sit directly on the backdrop with no
+panel behind them — an opaque panel turned the page into one big table and hid
+the picture it was sitting on. And row height is capped: a two-week chart
+stretched to fill the sheet gives cells the size of postcards, so past the cap
+the grid keeps its height and centres, weekday headers and all.
 
 Four decisions worth knowing about:
 

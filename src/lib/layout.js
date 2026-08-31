@@ -50,7 +50,11 @@ export function computeLayout({ paperId, weeks, stickersPerDay }) {
   const gridWidth = paper.width - pad * 2 - gutter * 2 - panelPad * 2
   const rowsHeight = bodyHeight - dowHeight - panelPad * 2 - gap
 
-  const rowHeight = (rowsHeight - gap * (weeks - 1)) / weeks
+  // Capped: a two-week chart stretched to fill the sheet gives cells the size
+  // of postcards and a page that is all table. Past the cap the grid keeps its
+  // height and centres in what is left, letting the artwork through.
+  const rowHeight = Math.min((rowsHeight - gap * (weeks - 1)) / weeks, 30 * k)
+  const gridHeight = rowHeight * weeks + gap * (weeks - 1)
   const colWidth = (gridWidth - gap * 6) / 7
 
   // The sticker circles are the point of the whole page, so they get whatever
@@ -77,6 +81,7 @@ export function computeLayout({ paperId, weeks, stickersPerDay }) {
     panelPad,
     bodyHeight,
     rowHeight,
+    gridHeight,
     colWidth,
     sticker,
     slotGap,
@@ -100,6 +105,7 @@ export function layoutCssVars(layout) {
     '--cell-gap': mm(layout.gap),
     '--panel-pad': mm(layout.panelPad),
     '--row-h': mm(layout.rowHeight),
+    '--grid-h': mm(layout.gridHeight),
     '--sticker-d': mm(layout.sticker),
     '--slot-gap': mm(layout.slotGap),
     '--inner-pad': mm(layout.innerPad),

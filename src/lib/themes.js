@@ -12,6 +12,8 @@
  *   accent / accentDeep                the loud colour: name, pills, plaque
  *   support / supportDeep              the second hue: Shabbat, sun and moon
  *   panel / cell / highlight           the calendar surfaces
+ *   nameFill / nameHalo                the name, which has to hold up
+ *                                      against a dark backdrop too
  *   ink                                text, biased toward the accent's hue
  */
 export const THEMES = [
@@ -31,6 +33,8 @@ export const THEMES = [
       supportDeep: '#CE8A11',
       panel: '#F4F8FD',
       cell: '#FFFFFF',
+      nameFill: '#2F7FE8',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FFF5E2',
     },
     fallbacks: { hero: '👮', cast: '🚑' },
@@ -51,6 +55,8 @@ export const THEMES = [
       supportDeep: '#D2911A',
       panel: '#FDF6F3',
       cell: '#FFFFFF',
+      nameFill: '#F0563F',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FFF3DF',
     },
     fallbacks: { hero: '🧑‍🚒', cast: '🚒' },
@@ -71,6 +77,8 @@ export const THEMES = [
       supportDeep: '#C88C15',
       panel: '#F5FAF3',
       cell: '#FFFFFF',
+      nameFill: '#4CA457',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FEF6E0',
     },
     fallbacks: { hero: '🐿️', cast: '🦊' },
@@ -91,6 +99,8 @@ export const THEMES = [
       supportDeep: '#1793AA',
       panel: '#F6F4FD',
       cell: '#FFFFFF',
+      nameFill: '#EFE9FF',
+      nameHalo: 'rgb(24 13 66 / 0.85)',
       highlight: '#E3F8FC',
     },
     fallbacks: { hero: '👨‍🚀', cast: '🚀' },
@@ -111,6 +121,8 @@ export const THEMES = [
       supportDeep: '#2A7BA8',
       panel: '#FDF8F0',
       cell: '#FFFFFF',
+      nameFill: '#F0952B',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#E6F4FC',
     },
     fallbacks: { hero: '👷', cast: '🚜' },
@@ -131,6 +143,8 @@ export const THEMES = [
       supportDeep: '#2A64AE',
       panel: '#F4FAF5',
       cell: '#FFFFFF',
+      nameFill: '#3E9E62',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#E7F1FD',
     },
     fallbacks: { hero: '⚽', cast: '🥅' },
@@ -151,6 +165,8 @@ export const THEMES = [
       supportDeep: '#D0951A',
       panel: '#FDF6F6',
       cell: '#FFFFFF',
+      nameFill: '#E24B55',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FFF6E1',
     },
     fallbacks: { hero: '🐭', cast: '🦆' },
@@ -171,6 +187,8 @@ export const THEMES = [
       supportDeep: '#D1603A',
       panel: '#F2FAFB',
       cell: '#FFFFFF',
+      nameFill: '#2AA3B5',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FFEDE4',
     },
     fallbacks: { hero: '🐬', cast: '🐙' },
@@ -191,6 +209,8 @@ export const THEMES = [
       supportDeep: '#C68611',
       panel: '#FDF7F5',
       cell: '#FFFFFF',
+      nameFill: '#E8503F',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FEF4E0',
     },
     fallbacks: { hero: '🏎️', cast: '🚗' },
@@ -211,6 +231,8 @@ export const THEMES = [
       supportDeep: '#C63B2C',
       panel: '#F4F8FE',
       cell: '#FFFFFF',
+      nameFill: '#3B76D8',
+      nameHalo: 'rgb(255 255 255 / 0.8)',
       highlight: '#FFECE8',
     },
     fallbacks: { hero: '✈️', cast: '🛩️' },
