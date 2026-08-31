@@ -18,6 +18,7 @@ export default function AssetImage({
   fallback,
   className = '',
   style,
+  onLoad,
 }) {
   const [failedSrc, setFailedSrc] = useState(null)
 
@@ -44,6 +45,7 @@ export default function AssetImage({
       className={className}
       style={style}
       onError={() => setFailedSrc(src)}
+      onLoad={onLoad}
       loading="eager"
       decoding="async"
     />

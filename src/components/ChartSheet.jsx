@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import AssetImage from './AssetImage'
 import { SunIcon, MoonIcon } from './Icons'
 import { WEEKDAY_NAMES, WEEKDAY_SHORT } from '../lib/hebrewCalendar'
@@ -21,15 +22,31 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
   const style = { ...themeCssVars(theme), ...layoutCssVars(layout) }
   const childName = settings.childName.trim()
 
+  // Artwork comes in one of two shapes. Either four separate PNGs, or a single
+  // full-page backdrop that already has the characters and the frame painted
+  // into it — which is what an image generator hands back when you ask it for
+  // one poster. In the second case the remaining slots have no file, and their
+  // "art goes here" placeholders would sit on top of finished artwork, so once
+  // a real background loads the placeholders stop being drawn. A real hero,
+  // cast or frame PNG still renders either way.
+  //
+  // We remember which backdrop loaded rather than a bare flag: switching from
+  // a theme that has artwork to one that doesn't has to bring the placeholders
+  // back, and a flag would stay stuck on.
+  const [backdropSrc, setBackdropSrc] = useState(null)
+  const backdrop = assetPath(theme.id, 'background')
+  const placeholder = backdropSrc === backdrop ? null : undefined
+
   return (
     <div className="chart-sheet" dir="rtl" lang="he" style={style}>
       {/* Full-bleed scene. Its CSS fallback — a ray-burst gradient painted on
           .chart-sheet itself — shows through while the PNG is missing. */}
       <AssetImage
-        src={assetPath(theme.id, 'background')}
+        src={backdrop}
         className="deco deco--background"
         alt=""
         fallback={null}
+        onLoad={() => setBackdropSrc(backdrop)}
       />
 
       <div className="sheet-inner">
@@ -38,6 +55,7 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
             src={assetPath(theme.id, 'hero')}
             className="deco deco--hero"
             fallbackGlyph={theme.fallbacks.hero}
+            fallback={placeholder}
             alt=""
           />
           <div className="sheet-header__titles">
@@ -59,6 +77,7 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
             src={assetPath(theme.id, 'cast')}
             className="deco deco--cast"
             fallbackGlyph={theme.fallbacks.cast}
+            fallback={placeholder}
             alt=""
           />
 
@@ -109,6 +128,7 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
             src={assetPath(theme.id, 'cast')}
             className="deco deco--cast deco--cast-flip"
             fallbackGlyph={theme.fallbacks.cast}
+            fallback={placeholder}
             alt=""
           />
         </div>
@@ -127,6 +147,7 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
         src={assetPath(theme.id, 'frame')}
         className="deco deco--frame"
         fallbackGlyph={theme.fallbacks.frame}
+        fallback={placeholder}
         alt=""
       />
     </div>
