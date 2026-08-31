@@ -1,9 +1,17 @@
 # מחולל טבלאות הרגלים לילדים
 
-A single-page app that generates a printable monthly sticker chart on the
-**Hebrew** calendar. A parent types the child's name and the habit, picks a
-month, a paper size and a theme, and prints one landscape page with an empty
-white circle for every day — one circle, or two labelled בוקר and ערב.
+A single-page app that generates a printable sticker chart on the **Hebrew**
+calendar. A parent types the child's name and the habit, picks the stretch of
+days to cover, a paper size and a theme, and prints one landscape page with an
+empty white circle for every day — one circle, or two labelled בוקר and ערב.
+
+Two ways to set the range:
+
+- **חודש שלם** — one Hebrew month, א׳ to its last day.
+- **מתאריך** — a chosen number of weeks from a chosen day. A chart gets
+  started on the day the parent decides, not on the 1st, so a run of four
+  weeks from י״ז אלול simply carries on into תשרי. Where it crosses, the 1st
+  wears its new month's name, because a bare א׳ mid-chart says nothing.
 
 Built with React + Vite + Tailwind CSS v4. The Hebrew calendar comes from
 [`@hebcal/core`](https://github.com/hebcal/hebcal-es6), so month lengths,
@@ -102,6 +110,12 @@ are the same design at two sizes rather than two designs that drifted apart.
 **`@page` can't read a CSS variable.** The `size: <paper> landscape` rule is
 rewritten from `App.jsx` whenever the paper size changes.
 
+**Keylines belong at display size only.** The topic used to be outlined like
+the name, at 6mm, where a hard multi-shadow stroke turns to mud. It sits on a
+solid ribbon now, and the outline is reserved for the name at 18mm. The dates
+moved out of that line into a chip of their own, which also balances the hero
+character on the other side of the title.
+
 **The name's outline is text-shadow, not `-webkit-text-stroke`.** A stroke is
 drawn centred over the glyph and eats into the fill, which at poster size looks
 thin and muddy. Two rings of hard-offset shadows — white, then dark — give the
@@ -126,6 +140,9 @@ reach the paper. In the browser's print dialog the user still needs
   resolves to אדר rather than leaving hebcal with no month to describe.
 - Cheshvan and Kislev change length year to year; `HDate.daysInMonth()` is the
   authority, so the grid is 29, 30, or a short month without special-casing.
+- A range walks forward with `HDate.add(1, 'd')` rather than counting days
+  itself, so crossing into the next month — and into the next year, where the
+  date chip then reads תשפ״ו–תשפ״ז — needs no arithmetic of our own.
 
 ## Verified
 
@@ -136,6 +153,10 @@ Checked in Chromium against a real print run:
 - תשפ״ז lists thirteen months including אדר א׳ / אדר ב׳.
 - Visual column order right-to-left is ראשון → שבת.
 - Tishrei תשפ״ו — 30 days, 1st on Tuesday, two leading empties.
+- Four weeks from י״ז אלול תשפ״ו — 28 days ending ט״ו תשרי תשפ״ז, with the
+  month badge landing on א׳.
+- Two to six weeks, A4 and A3, one and two stickers: right row count, nothing
+  overflowing the sheet, one page every time.
 - Two-sticker mode: בוקר on the right, ערב on the left, 2 slots per day.
 - Print: control panel `display: none`, transform removed,
   `print-color-adjust: exact`, and **one** page at 297×210 mm (A4) and

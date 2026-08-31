@@ -6,8 +6,8 @@ import { createRoot } from 'react-dom/client'
 // Hebrew and Latin only, and only the weights the design actually asks for —
 // the catch-all imports drag in Arabic, Cyrillic, math and symbol subsets and
 // turn a 70 kB deploy of type into a 2 MB one.
-import '@fontsource/rubik/hebrew-700.css'
-import '@fontsource/rubik/latin-700.css'
+import '@fontsource/fredoka/hebrew-600.css'
+import '@fontsource/fredoka/latin-600.css'
 import '@fontsource/heebo/hebrew-400.css'
 import '@fontsource/heebo/hebrew-700.css'
 import '@fontsource/heebo/hebrew-900.css'

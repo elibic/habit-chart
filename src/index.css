@@ -6,7 +6,7 @@
 
 :root {
   --font-body: 'Heebo', 'Rubik', 'Arial Hebrew', 'David', system-ui, sans-serif;
-  --font-display: 'Rubik', 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
+  --font-display: 'Fredoka', 'Rubik', 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
 }
 
 html,
@@ -172,52 +172,53 @@ body {
   box-sizing: border-box;
 }
 
-.sheet-header__balance {
-  flex: 0 0 auto;
-  width: calc(46mm * var(--k));
-}
-
 .sheet-header__titles {
+  display: flex;
   flex: 1 1 auto;
   min-width: 0;
-  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(1.6mm * var(--k));
   padding-bottom: calc(1mm * var(--k));
 }
 
-/* Topic and month, on a ribbon above the name. */
-.sheet-eyebrow {
+/* The topic, on a solid ribbon. Small type carries a keyline badly, so this
+   one gets a filled ground and no outline at all. */
+.topic-ribbon {
   margin: 0;
+  max-width: 100%;
+  padding: calc(1.4mm * var(--k)) calc(6mm * var(--k));
+  border-radius: 999px;
+  background: var(--c-primary);
+  border: calc(0.6mm * var(--k)) solid rgb(255 255 255 / 0.92);
+  box-shadow: 0 calc(0.8mm * var(--k)) calc(1.6mm * var(--k)) rgb(0 0 0 / 0.22);
   font-family: var(--font-display);
-  font-size: calc(6.2mm * var(--k));
-  font-weight: 700;
-  line-height: 1.1;
-  color: var(--c-eyebrowFill);
-  text-shadow:
-    calc(0.5mm * var(--k)) 0 0 var(--c-eyebrowStroke),
-    calc(-0.5mm * var(--k)) 0 0 var(--c-eyebrowStroke),
-    0 calc(0.5mm * var(--k)) 0 var(--c-eyebrowStroke),
-    0 calc(-0.5mm * var(--k)) 0 var(--c-eyebrowStroke),
-    calc(0.4mm * var(--k)) calc(0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
-    calc(-0.4mm * var(--k)) calc(0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
-    calc(0.4mm * var(--k)) calc(-0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
-    calc(-0.4mm * var(--k)) calc(-0.4mm * var(--k)) 0 var(--c-eyebrowStroke),
-    0 calc(1.1mm * var(--k)) calc(0.6mm * var(--k)) rgb(0 0 0 / 0.35);
+  font-size: calc(5.6mm * var(--k));
+  font-weight: 600;
+  line-height: 1.15;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* The child's name, poster-sized: a white keyline, a dark keyline outside
    that, and a hard drop shadow. Built from layered text-shadows rather than
    -webkit-text-stroke, which thins the glyphs by drawing over the fill. */
 .sheet-name {
-  margin: calc(0.5mm * var(--k)) 0 0;
+  margin: 0;
+  max-width: 100%;
   font-family: var(--font-display);
-  font-size: calc(20mm * var(--k));
-  font-weight: 700;
+  font-size: calc(18mm * var(--k));
+  font-weight: 600;
   line-height: 1;
-  letter-spacing: calc(-0.4mm * var(--k));
+  letter-spacing: calc(-0.3mm * var(--k));
   color: var(--c-nameFill);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 0 calc(2mm * var(--k));
   text-shadow:
     calc(1.1mm * var(--k)) 0 0 var(--c-nameStroke),
     calc(-1.1mm * var(--k)) 0 0 var(--c-nameStroke),
@@ -235,7 +236,57 @@ body {
     calc(-1.4mm * var(--k)) calc(1.4mm * var(--k)) 0 var(--c-nameShadow),
     calc(1.4mm * var(--k)) calc(-1.4mm * var(--k)) 0 var(--c-nameShadow),
     calc(-1.4mm * var(--k)) calc(-1.4mm * var(--k)) 0 var(--c-nameShadow),
-    0 calc(3mm * var(--k)) calc(1.5mm * var(--k)) rgb(0 0 0 / 0.4);
+    0 calc(2.6mm * var(--k)) calc(1.4mm * var(--k)) rgb(0 0 0 / 0.35);
+}
+
+/* The dates, as a quiet card. It balances the hero on the other side of the
+   title without competing with it — the name is where the boldness goes. */
+.date-chip {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.3mm * var(--k));
+  width: calc(42mm * var(--k));
+  padding: calc(2mm * var(--k)) calc(2.5mm * var(--k));
+  border-radius: calc(3.5mm * var(--k));
+  background: rgb(255 255 255 / 0.94);
+  border: calc(0.6mm * var(--k)) solid var(--c-primary);
+  box-shadow: 0 calc(0.8mm * var(--k)) calc(1.8mm * var(--k)) rgb(0 0 0 / 0.2);
+  font-family: var(--font-display);
+  color: var(--c-primaryDark);
+  text-align: center;
+}
+
+.date-chip__tag {
+  font-family: var(--font-body);
+  font-size: calc(2.9mm * var(--k));
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.date-chip__row {
+  display: flex;
+  align-items: baseline;
+  gap: calc(1.2mm * var(--k));
+  font-size: calc(4.4mm * var(--k));
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.date-chip__month {
+  font-size: calc(6.4mm * var(--k));
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.date-chip__year {
+  font-family: var(--font-body);
+  font-size: calc(3.2mm * var(--k));
+  font-weight: 700;
+  opacity: 0.75;
 }
 
 /* --- body: gutters + the calendar panel ----------------------------------- */
@@ -337,8 +388,28 @@ body {
 }
 
 /* In RTL, flex-start is the right-hand side — the natural leading corner. */
+.day-cell__head {
+  display: flex;
+  align-self: stretch;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(1mm * var(--k));
+  height: var(--date-h);
+}
+
+.day-cell__month {
+  font-family: var(--font-body);
+  font-size: calc(2.6mm * var(--k));
+  font-weight: 700;
+  line-height: var(--date-h);
+  color: #fff;
+  background: var(--c-accentDark);
+  border-radius: 999px;
+  padding: 0 calc(1.4mm * var(--k));
+  white-space: nowrap;
+}
+
 .day-cell__date {
-  align-self: flex-start;
   height: var(--date-h);
   font-family: var(--font-display);
   font-size: calc(4.2mm * var(--k));

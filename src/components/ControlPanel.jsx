@@ -1,6 +1,11 @@
 import { THEMES } from '../lib/themes'
 import { PAPER_LIST } from '../lib/layout'
-import { monthsOfYear, yearOptions } from '../lib/hebrewCalendar'
+import {
+  dayNameHe,
+  monthsOfYear,
+  yearOptions,
+} from '../lib/hebrewCalendar'
+import { HDate } from '@hebcal/core'
 import { SunIcon, MoonIcon } from './Icons'
 
 const field = 'flex flex-col gap-1.5'
@@ -113,6 +118,43 @@ export default function ControlPanel({ settings, onChange, onPrint }) {
           </div>
         </fieldset>
 
+        <fieldset className={field}>
+          <legend className={label}>טווח הטבלה</legend>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            {[
+              { value: 'month', title: 'חודש שלם', hint: 'מא׳ עד סוף החודש' },
+              { value: 'range', title: 'מתאריך', hint: 'כמה שבועות קדימה' },
+            ].map((option) => {
+              const active = settings.mode === option.value
+              return (
+                <label
+                  key={option.value}
+                  className={`cursor-pointer rounded-xl border-2 p-2.5 text-center transition ${
+                    active
+                      ? 'border-sky-500 bg-sky-50 shadow-sm'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="mode"
+                    className="sr-only"
+                    value={option.value}
+                    checked={active}
+                    onChange={() => onChange({ mode: option.value })}
+                  />
+                  <span className="block text-sm font-bold text-slate-800">
+                    {option.title}
+                  </span>
+                  <span className="block text-xs text-slate-500">
+                    {option.hint}
+                  </span>
+                </label>
+              )
+            })}
+          </div>
+        </fieldset>
+
         <div className="grid grid-cols-2 gap-3">
           <div className={field}>
             <label className={label} htmlFor="year">
@@ -135,7 +177,7 @@ export default function ControlPanel({ settings, onChange, onPrint }) {
 
           <div className={field}>
             <label className={label} htmlFor="month">
-              חודש
+              {settings.mode === 'range' ? 'חודש ההתחלה' : 'חודש'}
             </label>
             <select
               id="month"
@@ -153,6 +195,53 @@ export default function ControlPanel({ settings, onChange, onPrint }) {
             </select>
           </div>
         </div>
+
+        {settings.mode === 'range' && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className={field}>
+              <label className={label} htmlFor="startDay">
+                יום ההתחלה
+              </label>
+              <select
+                id="startDay"
+                className={input}
+                value={settings.startDay}
+                onChange={(event) =>
+                  onChange({ startDay: Number(event.target.value) })
+                }
+              >
+                {Array.from(
+                  { length: HDate.daysInMonth(settings.month, settings.year) },
+                  (_, i) => i + 1,
+                ).map((day) => (
+                  <option key={day} value={day}>
+                    {dayNameHe(day)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={field}>
+              <label className={label} htmlFor="weeks">
+                מספר שבועות
+              </label>
+              <select
+                id="weeks"
+                className={input}
+                value={settings.weeks}
+                onChange={(event) =>
+                  onChange({ weeks: Number(event.target.value) })
+                }
+              >
+                {[2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>
+                    {n} שבועות
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div className={field}>

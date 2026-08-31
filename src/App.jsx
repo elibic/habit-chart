@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import ControlPanel from './components/ControlPanel'
 import ChartPreview from './components/ChartPreview'
-import { buildMonthGrid, currentHebrewMonth } from './lib/hebrewCalendar'
+import {
+  buildMonthGrid,
+  buildRangeGrid,
+  currentHebrewMonth,
+} from './lib/hebrewCalendar'
 import { computeLayout } from './lib/layout'
 import { getTheme } from './lib/themes'
 import { HDate } from '@hebcal/core'
@@ -13,8 +17,14 @@ const INITIAL_SETTINGS = {
   topic: 'טבלת הצחצוח שלי',
   stickersPerDay: 1,
   paperId: 'A4',
+  // 'month' fills one Hebrew month; 'range' runs a chosen number of weeks
+  // from a chosen day, which is how a chart actually gets started — on the
+  // day the parent decides, not on the 1st.
+  mode: 'month',
   month: today.month,
   year: today.year,
+  startDay: 1,
+  weeks: 4,
   themeId: 'rescue-blue',
 }
 
@@ -30,13 +40,28 @@ export default function App() {
     settings.month === 13 && !HDate.isLeapYear(settings.year)
       ? 12
       : settings.month
-  const resolved = { ...settings, month }
+
+  // A short month can strand a start day that a longer one allowed.
+  const startDay = Math.min(
+    settings.startDay,
+    HDate.daysInMonth(month, settings.year),
+  )
+
+  const resolved = { ...settings, month, startDay }
 
   const theme = useMemo(() => getTheme(settings.themeId), [settings.themeId])
 
   const grid = useMemo(
-    () => buildMonthGrid(month, settings.year),
-    [month, settings.year],
+    () =>
+      settings.mode === 'range'
+        ? buildRangeGrid({
+            day: startDay,
+            month,
+            year: settings.year,
+            weeks: Number(settings.weeks),
+          })
+        : buildMonthGrid(month, settings.year),
+    [settings.mode, startDay, month, settings.year, settings.weeks],
   )
 
   const layout = useMemo(

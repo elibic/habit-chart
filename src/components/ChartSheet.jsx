@@ -59,16 +59,35 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
             alt=""
           />
           <div className="sheet-header__titles">
-            <p className="sheet-eyebrow">
-              {settings.topic || 'הטבלה שלי'} — חודש {grid.monthName}{' '}
-              {grid.yearName}
-            </p>
+            {/* The topic sits on a solid ribbon rather than being outlined
+                like the name. A hard keyline reads as a poster at 20mm and
+                as mud at 6mm, so only the name gets one. */}
+            <p className="topic-ribbon">{settings.topic || 'הטבלה שלי'}</p>
             <h1 className="sheet-name">{childName || ' '}</h1>
           </div>
-          {/* Balances the hero's width so the name is centred on the page
-              and not on the space left over beside it. The top-left corner
-              is filled by the background artwork. */}
-          <div className="sheet-header__balance" aria-hidden="true" />
+          {/* Balances the hero on the other side of the title, and gives the
+              dates a home of their own instead of crowding the topic line. */}
+          <div className="date-chip">
+            {grid.period.kind === 'range' ? (
+              <>
+                <span className="date-chip__row">
+                  <span className="date-chip__tag">מ־</span>
+                  {grid.period.from}
+                </span>
+                <span className="date-chip__row">
+                  <span className="date-chip__tag">עד</span>
+                  {grid.period.to}
+                </span>
+                <span className="date-chip__year">{grid.period.year}</span>
+              </>
+            ) : (
+              <>
+                <span className="date-chip__tag">חודש</span>
+                <span className="date-chip__month">{grid.period.month}</span>
+                <span className="date-chip__year">{grid.period.year}</span>
+              </>
+            )}
+          </div>
         </header>
 
         <div className="sheet-body">
@@ -103,8 +122,17 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
                     key={cell.key}
                     className={`day-cell${cell.isShabbat ? ' day-cell--shabbat' : ''}`}
                   >
-                    {/* Hebrew letters only — never Arabic numerals. */}
-                    <span className="day-cell__date">{cell.label}</span>
+                    <span className="day-cell__head">
+                      {/* Hebrew letters only — never Arabic numerals. */}
+                      <span className="day-cell__date">{cell.label}</span>
+                      {/* A range can cross into a new month, where a bare
+                          א׳ would be unreadable without its month. */}
+                      {cell.monthLabel && (
+                        <span className="day-cell__month">
+                          {cell.monthLabel}
+                        </span>
+                      )}
+                    </span>
                     <div
                       className={`sticker-row sticker-row--${stickers}`}
                       aria-label={`מקום למדבקות ליום ${cell.label}`}

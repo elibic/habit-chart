@@ -87,6 +87,62 @@ export function yearOptions(span = 3) {
   return years
 }
 
+/** One day, in the shape the grid renders. */
+function dayCell(hd, index, opts = {}) {
+  const day = hd.getDate()
+  return {
+    key: `day-${hd.abs()}`,
+    empty: false,
+    day,
+    label: dayNameHe(day),
+    dow: index % 7,
+    isShabbat: index % 7 === 6,
+    // Only in a range that crosses into a new month: the 1st carries the
+    // month's name, otherwise א׳ appearing mid-chart is unreadable.
+    monthLabel: opts.markMonths && day === 1 ? monthNameHe(hd.getMonth(), hd.getFullYear()) : null,
+  }
+}
+
+/**
+ * A run of whole weeks starting on a chosen date — a four-week chart begun on
+ * י״ז אלול, say — rather than a calendar month. It rolls into the next month,
+ * and into the next year, because @hebcal/core does the arithmetic.
+ */
+export function buildRangeGrid({ day, month, year, weeks }) {
+  const start = new HDate(day, month, year)
+  const startDow = start.getDay()
+  const totalDays = weeks * 7 - startDow
+
+  const cells = []
+  for (let i = 0; i < startDow; i++) {
+    cells.push({ key: `pad-${i}`, empty: true })
+  }
+  let hd = start
+  for (let i = 0; i < totalDays; i++) {
+    cells.push(dayCell(hd, startDow + i, { markMonths: true }))
+    hd = hd.add(1, 'd')
+  }
+  const end = hd.add(-1, 'd')
+
+  return {
+    cells,
+    weeks,
+    totalDays,
+    startDow,
+    monthName: monthNameHe(start.getMonth(), start.getFullYear()),
+    yearName: yearNameHe(start.getFullYear()),
+    period: {
+      kind: 'range',
+      from: `${dayNameHe(start.getDate())} ${monthNameHe(start.getMonth(), start.getFullYear())}`,
+      to: `${dayNameHe(end.getDate())} ${monthNameHe(end.getMonth(), end.getFullYear())}`,
+      year:
+        start.getFullYear() === end.getFullYear()
+          ? yearNameHe(start.getFullYear())
+          : `${yearNameHe(start.getFullYear())}–${yearNameHe(end.getFullYear())}`,
+    },
+  }
+}
+
 /**
  * The grid itself: a flat list of cells, padded at the front so that the 1st
  * of the month sits under its real weekday, and padded at the end so the last
@@ -103,14 +159,7 @@ export function buildMonthGrid(month, year) {
     if (day < 1 || day > totalDays) {
       cells.push({ key: `pad-${i}`, empty: true })
     } else {
-      cells.push({
-        key: `day-${day}`,
-        empty: false,
-        day,
-        label: dayNameHe(day),
-        dow: i % 7,
-        isShabbat: i % 7 === 6,
-      })
+      cells.push(dayCell(new HDate(day, month, year), i))
     }
   }
 
@@ -121,5 +170,10 @@ export function buildMonthGrid(month, year) {
     startDow,
     monthName: monthNameHe(month, year),
     yearName: yearNameHe(year),
+    period: {
+      kind: 'month',
+      month: monthNameHe(month, year),
+      year: yearNameHe(year),
+    },
   }
 }
