@@ -58,21 +58,24 @@ body {
   font-family: var(--font-body);
   box-shadow: 0 18px 45px rgb(15 23 42 / 0.18);
 
-  /* The fallback scene: a ray burst behind everything, so the sheet still
-     looks like a poster before background.png exists. The artwork, when
-     present, is painted straight over it. */
+  /* Two soft blobs washed over a tinted ground, plus a scatter of confetti.
+     This is what the sunburst used to be: radiating rays read as party-supply
+     clip art, and no amount of good type rescues a page built on them. */
   background:
-    repeating-conic-gradient(
-      from 0deg at 50% 34%,
-      rgb(255 255 255 / 0.12) 0deg 5deg,
-      transparent 5deg 11deg
-    ),
-    radial-gradient(
-      130% 95% at 50% 26%,
-      var(--c-sceneLight) 0%,
-      var(--c-scene) 52%,
-      var(--c-sceneDark) 100%
-    );
+    radial-gradient(0.7% 1% at 9% 12%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.5% 0.7% at 17% 34%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.6% 0.85% at 5% 62%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.5% 0.7% at 13% 84%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.7% 1% at 91% 16%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.5% 0.7% at 84% 41%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.6% 0.85% at 95% 70%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.5% 0.7% at 88% 90%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.6% 0.85% at 46% 6%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(0.5% 0.7% at 62% 96%, var(--c-confetti) 99%, transparent 100%),
+    radial-gradient(58% 62% at 14% 6%, var(--c-blobA) 0%, transparent 68%),
+    radial-gradient(62% 58% at 92% 96%, var(--c-blobB) 0%, transparent 66%),
+    radial-gradient(70% 60% at 78% 4%, var(--c-blobA) 0%, transparent 62%),
+    var(--c-ground);
 }
 
 .sheet-inner {
@@ -101,7 +104,6 @@ body {
   object-fit: cover;
 }
 
-/* The ornamental border, drawn over everything else. */
 .deco--frame {
   position: absolute;
   inset: 0;
@@ -138,9 +140,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: calc(3mm * var(--k));
-  background: rgb(255 255 255 / 0.22);
-  border: calc(0.5mm * var(--k)) dashed rgb(255 255 255 / 0.65);
+  border-radius: calc(6mm * var(--k));
+  background: rgb(255 255 255 / 0.45);
   box-sizing: border-box;
 }
 
@@ -158,6 +159,7 @@ body {
 .asset-fallback__glyph {
   font-size: calc(10mm * var(--k));
   line-height: 1;
+  opacity: 0.55;
 }
 
 /* --- header --------------------------------------------------------------- */
@@ -165,10 +167,10 @@ body {
 .sheet-header {
   display: flex;
   height: var(--header-h);
-  align-items: flex-end;
-  gap: calc(2mm * var(--k));
+  align-items: center;
+  gap: calc(3mm * var(--k));
   flex: 0 0 auto;
-  padding: 0 calc(4mm * var(--k));
+  padding: 0 calc(3mm * var(--k));
   box-sizing: border-box;
 }
 
@@ -178,84 +180,69 @@ body {
   min-width: 0;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: calc(1.6mm * var(--k));
-  padding-bottom: calc(1mm * var(--k));
+  justify-content: center;
+  gap: calc(2mm * var(--k));
 }
 
-/* The topic, on a solid ribbon. Small type carries a keyline badly, so this
-   one gets a filled ground and no outline at all. */
+/* The topic, on a soft pill. */
 .topic-ribbon {
   margin: 0;
   max-width: 100%;
-  padding: calc(1.4mm * var(--k)) calc(6mm * var(--k));
+  padding: calc(1.5mm * var(--k)) calc(7mm * var(--k));
   border-radius: 999px;
-  background: var(--c-primary);
-  border: calc(0.6mm * var(--k)) solid rgb(255 255 255 / 0.92);
-  box-shadow: 0 calc(0.8mm * var(--k)) calc(1.6mm * var(--k)) rgb(0 0 0 / 0.22);
+  background: var(--c-accent);
+  box-shadow: 0 calc(1mm * var(--k)) calc(2.4mm * var(--k))
+    color-mix(in srgb, var(--c-accentDeep) 32%, transparent);
   font-family: var(--font-display);
-  font-size: calc(5.6mm * var(--k));
-  font-weight: 600;
-  line-height: 1.15;
+  font-size: calc(5.4mm * var(--k));
+  font-weight: 500;
+  line-height: 1.2;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* The child's name, poster-sized: a white keyline, a dark keyline outside
-   that, and a hard drop shadow. Built from layered text-shadows rather than
-   -webkit-text-stroke, which thins the glyphs by drawing over the fill. */
+/* The child's name: one solid colour, a hard extrude and a soft shadow under
+   it. The old sixteen-layer keyline was sticker-text from another decade —
+   chunky rounded type carries the page on its own weight. */
 .sheet-name {
   margin: 0;
   max-width: 100%;
   font-family: var(--font-display);
-  font-size: calc(18mm * var(--k));
+  font-size: calc(19mm * var(--k));
   font-weight: 600;
   line-height: 1;
-  letter-spacing: calc(-0.3mm * var(--k));
-  color: var(--c-nameFill);
+  letter-spacing: calc(-0.35mm * var(--k));
+  /* Bright fill over a darker extrude — the depth has to fall away from the
+     light, not toward it. Reversed, the name reads bleached. */
+  color: var(--c-accent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0 calc(2mm * var(--k));
   text-shadow:
-    calc(1.1mm * var(--k)) 0 0 var(--c-nameStroke),
-    calc(-1.1mm * var(--k)) 0 0 var(--c-nameStroke),
-    0 calc(1.1mm * var(--k)) 0 var(--c-nameStroke),
-    0 calc(-1.1mm * var(--k)) 0 var(--c-nameStroke),
-    calc(0.8mm * var(--k)) calc(0.8mm * var(--k)) 0 var(--c-nameStroke),
-    calc(-0.8mm * var(--k)) calc(0.8mm * var(--k)) 0 var(--c-nameStroke),
-    calc(0.8mm * var(--k)) calc(-0.8mm * var(--k)) 0 var(--c-nameStroke),
-    calc(-0.8mm * var(--k)) calc(-0.8mm * var(--k)) 0 var(--c-nameStroke),
-    calc(1.9mm * var(--k)) 0 0 var(--c-nameShadow),
-    calc(-1.9mm * var(--k)) 0 0 var(--c-nameShadow),
-    0 calc(1.9mm * var(--k)) 0 var(--c-nameShadow),
-    0 calc(-1.9mm * var(--k)) 0 var(--c-nameShadow),
-    calc(1.4mm * var(--k)) calc(1.4mm * var(--k)) 0 var(--c-nameShadow),
-    calc(-1.4mm * var(--k)) calc(1.4mm * var(--k)) 0 var(--c-nameShadow),
-    calc(1.4mm * var(--k)) calc(-1.4mm * var(--k)) 0 var(--c-nameShadow),
-    calc(-1.4mm * var(--k)) calc(-1.4mm * var(--k)) 0 var(--c-nameShadow),
-    0 calc(2.6mm * var(--k)) calc(1.4mm * var(--k)) rgb(0 0 0 / 0.35);
+    0 calc(1.3mm * var(--k)) 0 var(--c-accentDeep),
+    0 calc(3.4mm * var(--k)) calc(2.6mm * var(--k)) rgb(0 0 0 / 0.16);
 }
 
-/* The dates, as a quiet card. It balances the hero on the other side of the
-   title without competing with it — the name is where the boldness goes. */
+/* The dates, as a quiet white card — it balances the hero across the title
+   without competing with the name. */
 .date-chip {
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: calc(0.3mm * var(--k));
+  gap: calc(0.4mm * var(--k));
   width: calc(42mm * var(--k));
-  padding: calc(2mm * var(--k)) calc(2.5mm * var(--k));
-  border-radius: calc(3.5mm * var(--k));
-  background: rgb(255 255 255 / 0.94);
-  border: calc(0.6mm * var(--k)) solid var(--c-primary);
-  box-shadow: 0 calc(0.8mm * var(--k)) calc(1.8mm * var(--k)) rgb(0 0 0 / 0.2);
+  padding: calc(2.4mm * var(--k)) calc(2.5mm * var(--k));
+  border-radius: calc(5mm * var(--k));
+  background: #fff;
+  box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k))
+    color-mix(in srgb, var(--c-ink) 16%, transparent);
   font-family: var(--font-display);
-  color: var(--c-primaryDark);
+  color: var(--c-accentDeep);
   text-align: center;
 }
 
@@ -263,7 +250,7 @@ body {
   font-family: var(--font-body);
   font-size: calc(2.9mm * var(--k));
   font-weight: 700;
-  opacity: 0.6;
+  color: color-mix(in srgb, var(--c-ink) 55%, #fff);
 }
 
 .date-chip__row {
@@ -271,8 +258,8 @@ body {
   align-items: baseline;
   gap: calc(1.2mm * var(--k));
   font-size: calc(4.4mm * var(--k));
-  font-weight: 600;
-  line-height: 1.15;
+  font-weight: 500;
+  line-height: 1.2;
   white-space: nowrap;
 }
 
@@ -286,7 +273,7 @@ body {
   font-family: var(--font-body);
   font-size: calc(3.2mm * var(--k));
   font-weight: 700;
-  opacity: 0.75;
+  color: color-mix(in srgb, var(--c-ink) 55%, #fff);
 }
 
 /* --- body: gutters + the calendar panel ----------------------------------- */
@@ -299,21 +286,19 @@ body {
   gap: calc(1mm * var(--k));
 }
 
+/* Faintly tinted, so the white day cards read as cards. */
 .grid-panel {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
   flex-direction: column;
   box-sizing: border-box;
-  padding: var(--panel-pad);
-  gap: var(--cell-gap);
-  border-radius: calc(3.5mm * var(--k));
+  padding: calc(2.4mm * var(--k));
+  gap: calc(2mm * var(--k));
+  border-radius: calc(7mm * var(--k));
   background: var(--c-panel);
-  /* A soft white rim rather than a coloured band: the panel should read as
-     the cells floating on the artwork, not as a second frame competing with
-     whatever the backdrop already has around its edges. */
-  border: calc(0.5mm * var(--k)) solid rgb(255 255 255 / 0.9);
-  box-shadow: 0 calc(1.5mm * var(--k)) calc(3mm * var(--k)) rgb(0 0 0 / 0.25);
+  box-shadow: 0 calc(1.6mm * var(--k)) calc(4mm * var(--k))
+    color-mix(in srgb, var(--c-ink) 18%, transparent);
 }
 
 /* --- weekday header row --------------------------------------------------- */
@@ -330,8 +315,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: calc(1.6mm * var(--k));
-  background: var(--c-primary);
+  border-radius: 999px;
+  background: var(--c-accent);
   color: #fff;
   font-size: calc(3.7mm * var(--k));
   font-weight: 700;
@@ -339,11 +324,10 @@ body {
 }
 
 .dow-cell--shabbat {
-  background: var(--c-accent);
+  background: var(--c-support);
   color: var(--c-ink);
 }
 
-/* The short form is a safety net for narrow columns; only one is ever shown. */
 .dow-cell__short {
   display: none;
 }
@@ -362,36 +346,36 @@ body {
   min-height: 0;
 }
 
+/* Borderless cards on the tinted panel, lifted by a soft shadow — a hairline
+   rule around every cell is what makes a page look like a spreadsheet. */
 .day-cell {
   position: relative;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   padding: var(--inner-pad);
-  border: calc(0.35mm * var(--k)) solid
-    color-mix(in srgb, var(--c-grid) 85%, var(--c-ink));
-  border-radius: calc(1.6mm * var(--k));
+  border-radius: calc(4mm * var(--k));
   background: var(--c-cell);
+  box-shadow: 0 calc(0.5mm * var(--k)) calc(1.2mm * var(--k))
+    color-mix(in srgb, var(--c-ink) 14%, transparent);
   overflow: hidden;
 }
 
 .day-cell--shabbat {
-  background: var(--c-shabbat);
-  border-color: var(--c-accentDark);
+  background: var(--c-highlight);
 }
 
 /* Empty leading/trailing cells: present, but visibly not days. */
 .day-cell--empty {
-  border-style: dashed;
-  border-color: color-mix(in srgb, var(--c-grid) 55%, transparent);
-  background: transparent;
+  background: color-mix(in srgb, var(--c-panel) 70%, transparent);
+  box-shadow: none;
 }
 
 /* In RTL, flex-start is the right-hand side — the natural leading corner. */
 .day-cell__head {
   display: flex;
   align-self: stretch;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: calc(1mm * var(--k));
   height: var(--date-h);
@@ -401,25 +385,24 @@ body {
   font-family: var(--font-body);
   font-size: calc(2.6mm * var(--k));
   font-weight: 700;
-  line-height: var(--date-h);
+  line-height: 1;
   color: #fff;
-  background: var(--c-accentDark);
+  background: var(--c-supportDeep);
   border-radius: 999px;
-  padding: 0 calc(1.4mm * var(--k));
+  padding: calc(0.6mm * var(--k)) calc(1.5mm * var(--k));
   white-space: nowrap;
 }
 
 .day-cell__date {
-  height: var(--date-h);
   font-family: var(--font-display);
-  font-size: calc(4.2mm * var(--k));
-  font-weight: 700;
-  line-height: var(--date-h);
-  color: var(--c-primaryDark);
+  font-size: calc(4.4mm * var(--k));
+  font-weight: 600;
+  line-height: 1;
+  color: var(--c-accentDeep);
 }
 
 .day-cell--shabbat .day-cell__date {
-  color: var(--c-ink);
+  color: var(--c-supportDeep);
 }
 
 /* --- sticker placeholders ------------------------------------------------- */
@@ -437,43 +420,43 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: calc(0.4mm * var(--k));
+  gap: calc(0.6mm * var(--k));
 }
 
+/* A soft ring on a faint tint: it has to read as "put something here" without
+   drawing a hard black circle across a printed page. */
 .sticker-circle {
   width: var(--sticker-d);
   height: var(--sticker-d);
   border-radius: 50%;
-  background: #fff;
-  /* A neutral, printable stroke rather than a theme tint: the circle has to
-     stay obvious on a black-and-white printer too. */
-  border: calc(0.45mm * var(--k)) solid
-    color-mix(in srgb, var(--c-ink) 32%, #ffffff);
+  background: color-mix(in srgb, var(--c-panel) 55%, #fff);
+  border: calc(0.5mm * var(--k)) solid
+    color-mix(in srgb, var(--c-ink) 34%, transparent);
   box-sizing: border-box;
 }
 
 .slot-label {
   display: flex;
   align-items: center;
-  gap: calc(0.6mm * var(--k));
+  gap: calc(0.7mm * var(--k));
   height: var(--slot-label-h);
-  font-size: calc(2.7mm * var(--k));
+  font-size: calc(2.8mm * var(--k));
   font-weight: 700;
   line-height: 1;
-  color: var(--c-primaryDark);
+  color: color-mix(in srgb, var(--c-ink) 72%, #fff);
 }
 
 .slot-label__icon {
-  width: calc(3mm * var(--k));
-  height: calc(3mm * var(--k));
+  width: calc(3.1mm * var(--k));
+  height: calc(3.1mm * var(--k));
 }
 
 .slot-label--morning .slot-label__icon {
-  color: var(--c-accentDark);
+  color: var(--c-supportDeep);
 }
 
 .slot-label--evening .slot-label__icon {
-  color: var(--c-primary);
+  color: var(--c-accent);
 }
 
 /* --- footer plaque -------------------------------------------------------- */
@@ -490,27 +473,25 @@ body {
   display: flex;
   align-items: center;
   gap: calc(3mm * var(--k));
-  padding: calc(1.6mm * var(--k)) calc(9mm * var(--k));
-  border-radius: calc(2.5mm * var(--k));
-  background: var(--c-plaque);
-  border: calc(0.8mm * var(--k)) solid var(--c-accent);
-  box-shadow:
-    inset 0 0 0 calc(0.4mm * var(--k)) rgb(255 255 255 / 0.35),
-    0 calc(1mm * var(--k)) calc(2mm * var(--k)) rgb(0 0 0 / 0.3);
+  padding: calc(1.8mm * var(--k)) calc(9mm * var(--k));
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k))
+    color-mix(in srgb, var(--c-ink) 16%, transparent);
 }
 
 .plaque__text {
   font-family: var(--font-display);
-  font-size: calc(5.4mm * var(--k));
-  font-weight: 700;
-  line-height: 1.1;
-  color: #fff;
+  font-size: calc(5.2mm * var(--k));
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--c-accentDeep);
 }
 
 .plaque__star {
-  font-size: calc(4.4mm * var(--k));
+  font-size: calc(4.2mm * var(--k));
   line-height: 1;
-  color: var(--c-accent);
+  color: var(--c-support);
 }
 
 /* ---------------------------------------------------------------------------
