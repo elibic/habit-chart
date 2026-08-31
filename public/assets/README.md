@@ -6,7 +6,8 @@ app runs and prints as a finished poster from the first load.
 
 ```
 public/assets/
-  rescue-blue/   fire-red/   nature/   space/
+  rescue-blue/  fire-red/  nature/  space/  construction/
+  football/  mickey/  underwater/  cars/  super-wings/
     background.png   full-bleed illustrated scene, printed at full strength
     frame.png        gold ornamental border, drawn over everything, hollow centre
     cast.png         a vertical strip of characters for the side gutters
@@ -14,8 +15,13 @@ public/assets/
 ```
 
 Filenames are fixed — the theme id is the folder name, the four slot names are
-the filenames. Adding a fifth theme means adding a folder here and an entry in
+the filenames. Adding another theme means adding a folder here and an entry in
 `src/lib/themes.js`.
+
+A single `background.png` can carry the whole decoration — characters, frame
+and all — which is what an image generator returns when you ask it for one
+poster. Once it loads, the other three slots stop drawing their placeholders,
+so one file per theme is a complete set.
 
 ## Sizes and safe areas
 
