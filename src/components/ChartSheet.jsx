@@ -91,14 +91,19 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
         </header>
 
         <div className="sheet-body">
-          {/* One artwork file dresses both gutters: the left copy is mirrored. */}
-          <AssetImage
-            src={assetPath(theme.id, 'cast')}
-            className="deco deco--cast"
-            fallbackGlyph={theme.fallbacks.cast}
-            fallback={placeholder}
-            alt=""
-          />
+          {/* One artwork file dresses both gutters: the left copy is mirrored.
+              The gutter is a element in its own right, so the margin survives
+              even when nothing is drawn in it — otherwise a backdrop, whose
+              characters live out here, gets covered by the panel. */}
+          <div className="gutter">
+            <AssetImage
+              src={assetPath(theme.id, 'cast')}
+              className="deco deco--cast"
+              fallbackGlyph={theme.fallbacks.cast}
+              fallback={placeholder}
+              alt=""
+            />
+          </div>
 
           <div className="grid-panel">
             <div className="dow-row" role="row">
@@ -152,13 +157,15 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
             </div>
           </div>
 
-          <AssetImage
-            src={assetPath(theme.id, 'cast')}
-            className="deco deco--cast deco--cast-flip"
-            fallbackGlyph={theme.fallbacks.cast}
-            fallback={placeholder}
-            alt=""
-          />
+          <div className="gutter">
+            <AssetImage
+              src={assetPath(theme.id, 'cast')}
+              className="deco deco--cast deco--cast-flip"
+              fallbackGlyph={theme.fallbacks.cast}
+              fallback={placeholder}
+              alt=""
+            />
+          </div>
         </div>
 
         <footer className="sheet-footer">

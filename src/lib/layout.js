@@ -37,7 +37,11 @@ export function computeLayout({ paperId, weeks, stickersPerDay }) {
   const pad = 5 * k
   const headerHeight = (tight ? 38 : 44) * k
   const footerHeight = (tight ? 15 : 19) * k
-  const gutter = (tight ? 20 : 23) * k // the character strips down both sides
+  // Wide enough that the panel clears the characters an image generator
+  // actually draws. Asked for the outer 8%, it returns 12-13%, and the panel
+  // was covering the whole side cast. Costs nothing: the sticker circles are
+  // limited by row height, not column width, at every week count.
+  const gutter = (tight ? 29 : 32) * k
   const dowHeight = (tight ? 9 : 10) * k
   const gap = 0.7 * k
   const panelPad = 1.6 * k

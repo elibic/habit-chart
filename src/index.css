@@ -122,12 +122,21 @@ body {
   flex: 0 0 auto;
 }
 
+/* The margins the panel must not eat into. They hold their width whether or
+   not anything is drawn in them, because a full-page backdrop puts its
+   characters exactly here. */
+.gutter {
+  display: flex;
+  flex: 0 0 auto;
+  width: var(--gutter-w);
+  align-items: stretch;
+}
+
 /* The character strips down the gutters. One file, mirrored on the left. */
 .deco--cast {
-  width: var(--gutter-w);
+  width: 100%;
   height: 100%;
   object-fit: contain;
-  flex: 0 0 auto;
 }
 
 .deco--cast-flip {
