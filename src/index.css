@@ -155,21 +155,6 @@ body {
   padding: calc(4mm * var(--k)) 0;
 }
 
-.asset-fallback.deco--frame {
-  background: transparent;
-  border-style: solid;
-  border-width: calc(2.2mm * var(--k));
-  border-color: var(--c-accent);
-  border-radius: calc(5mm * var(--k));
-  box-shadow:
-    inset 0 0 0 calc(0.7mm * var(--k)) var(--c-accentDark),
-    0 0 0 calc(0.7mm * var(--k)) var(--c-accentDark) inset;
-}
-
-.asset-fallback.deco--frame .asset-fallback__glyph {
-  display: none;
-}
-
 .asset-fallback__glyph {
   font-size: calc(10mm * var(--k));
   line-height: 1;
@@ -273,10 +258,11 @@ body {
   gap: var(--cell-gap);
   border-radius: calc(3.5mm * var(--k));
   background: var(--c-panel);
-  border: calc(1mm * var(--k)) solid var(--c-accent);
-  box-shadow:
-    0 0 0 calc(0.4mm * var(--k)) var(--c-primaryDark),
-    0 calc(1.5mm * var(--k)) calc(3mm * var(--k)) rgb(0 0 0 / 0.28);
+  /* A soft white rim rather than a coloured band: the panel should read as
+     the cells floating on the artwork, not as a second frame competing with
+     whatever the backdrop already has around its edges. */
+  border: calc(0.5mm * var(--k)) solid rgb(255 255 255 / 0.9);
+  box-shadow: 0 calc(1.5mm * var(--k)) calc(3mm * var(--k)) rgb(0 0 0 / 0.25);
 }
 
 /* --- weekday header row --------------------------------------------------- */

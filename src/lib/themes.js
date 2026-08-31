@@ -32,7 +32,7 @@ export const THEMES = [
       eyebrowStroke: '#12457f',
       plaque: '#0d3f8f',
     },
-    fallbacks: { hero: '👮', cast: '🚑', frame: '🔵' },
+    fallbacks: { hero: '👮', cast: '🚑' },
   },
   {
     id: 'fire-red',
@@ -58,7 +58,7 @@ export const THEMES = [
       eyebrowStroke: '#8f1c0c',
       plaque: '#a01a1a',
     },
-    fallbacks: { hero: '🧑‍🚒', cast: '🚒', frame: '🔴' },
+    fallbacks: { hero: '🧑‍🚒', cast: '🚒' },
   },
   {
     id: 'nature',
@@ -84,7 +84,7 @@ export const THEMES = [
       eyebrowStroke: '#1b5e20',
       plaque: '#1b5e20',
     },
-    fallbacks: { hero: '🐿️', cast: '🦊', frame: '🍃' },
+    fallbacks: { hero: '🐿️', cast: '🦊' },
   },
   {
     id: 'space',
@@ -110,7 +110,7 @@ export const THEMES = [
       eyebrowStroke: '#3d1f80',
       plaque: '#3d1f80',
     },
-    fallbacks: { hero: '👨‍🚀', cast: '🚀', frame: '⭐' },
+    fallbacks: { hero: '👨‍🚀', cast: '🚀' },
   },
   {
     id: 'construction',
@@ -136,7 +136,7 @@ export const THEMES = [
       eyebrowStroke: '#8a5200',
       plaque: '#a85f00',
     },
-    fallbacks: { hero: '👷', cast: '🚜', frame: '🟠' },
+    fallbacks: { hero: '👷', cast: '🚜' },
   },
   {
     id: 'football',
@@ -162,7 +162,7 @@ export const THEMES = [
       eyebrowStroke: '#14561f',
       plaque: '#0f4d1e',
     },
-    fallbacks: { hero: '⚽', cast: '🥅', frame: '🟢' },
+    fallbacks: { hero: '⚽', cast: '🥅' },
   },
   {
     id: 'mickey',
@@ -188,7 +188,7 @@ export const THEMES = [
       eyebrowStroke: '#9e1414',
       plaque: '#9e1414',
     },
-    fallbacks: { hero: '🐭', cast: '🦆', frame: '🔴' },
+    fallbacks: { hero: '🐭', cast: '🦆' },
   },
   {
     id: 'underwater',
@@ -214,7 +214,7 @@ export const THEMES = [
       eyebrowStroke: '#065064',
       plaque: '#065064',
     },
-    fallbacks: { hero: '🐬', cast: '🐙', frame: '🐚' },
+    fallbacks: { hero: '🐬', cast: '🐙' },
   },
   {
     id: 'cars',
@@ -240,7 +240,7 @@ export const THEMES = [
       eyebrowStroke: '#9b0f14',
       plaque: '#9b0f14',
     },
-    fallbacks: { hero: '🏎️', cast: '🚗', frame: '🏁' },
+    fallbacks: { hero: '🏎️', cast: '🚗' },
   },
   {
     id: 'super-wings',
@@ -266,7 +266,7 @@ export const THEMES = [
       eyebrowStroke: '#b31f1f',
       plaque: '#123f85',
     },
-    fallbacks: { hero: '✈️', cast: '🛩️', frame: '🔵' },
+    fallbacks: { hero: '✈️', cast: '🛩️' },
   },
 ]
 

@@ -1,8 +1,9 @@
 # Artwork
 
-Four transparent PNGs per theme. Until you add them, every slot falls back to
-CSS — a ray-burst background, a gold frame, dashed character panels — so the
-app runs and prints as a finished poster from the first load.
+Four transparent PNGs per theme. Until you add them the page still runs and
+prints as a finished poster: the background falls back to a CSS ray-burst and
+the two character slots to dashed panels. The frame has no stand-in — an
+absent frame is simply absent, so the backdrop reaches the edge of the page.
 
 ```
 public/assets/

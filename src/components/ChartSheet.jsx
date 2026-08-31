@@ -143,12 +143,13 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
       </div>
 
       {/* Drawn last, over everything: the ornamental border. */}
+      {/* No CSS stand-in: an absent frame is simply absent, so the backdrop
+          reaches the edge of the page. A real frame.png still draws. */}
       <AssetImage
         src={assetPath(theme.id, 'frame')}
         className="deco deco--frame"
-        fallbackGlyph={theme.fallbacks.frame}
-        fallback={placeholder}
         alt=""
+        fallback={null}
       />
     </div>
   )
