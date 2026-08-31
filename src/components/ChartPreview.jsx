@@ -37,7 +37,9 @@ export default function ChartPreview(props) {
         className="no-print mb-3 flex items-baseline justify-between gap-3 text-sm text-slate-500"
         aria-hidden="true"
       >
-        <span className="font-bold text-slate-700">תצוגה מקדימה</span>
+        <span className="font-bold text-slate-700">
+          תצוגה מקדימה — אפשר לגרור את הכותרות
+        </span>
         <span>
           {props.layout.paper.label} · לרוחב · {Math.round(scale * 100)}%
         </span>

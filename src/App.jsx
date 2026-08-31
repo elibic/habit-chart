@@ -8,6 +8,7 @@ import {
 } from './lib/hebrewCalendar'
 import { computeLayout } from './lib/layout'
 import { getTheme } from './lib/themes'
+import { defaultElements, ELEMENT_DEFS } from './lib/elements'
 import { HDate } from '@hebcal/core'
 
 const today = currentHebrewMonth()
@@ -26,12 +27,21 @@ const INITIAL_SETTINGS = {
   startDay: 1,
   weeks: 4,
   themeId: 'rescue-blue',
+  plaqueText: 'כל הכבוד! ממשיכים ומצליחים',
 }
 
 export default function App() {
   const [settings, setSettings] = useState(INITIAL_SETTINGS)
+  const [elements, setElements] = useState(defaultElements)
+  const [selectedId, setSelectedId] = useState(null)
 
   const update = (patch) => setSettings((prev) => ({ ...prev, ...patch }))
+
+  const updateElement = (id, patch) =>
+    setElements((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }))
+
+  const resetElement = (id) =>
+    setElements((prev) => ({ ...prev, [id]: { ...ELEMENT_DEFS[id].defaults } }))
 
   // Adar II only exists in a leap year, so a year change can strand month 13
   // with no month for hebcal to describe. Resolved on the way out rather than
@@ -93,12 +103,22 @@ export default function App() {
           settings={resolved}
           onChange={update}
           onPrint={() => window.print()}
+          elements={elements}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          onElementChange={updateElement}
+          onElementReset={resetElement}
         />
         <ChartPreview
           theme={theme}
           layout={layout}
           grid={grid}
           settings={resolved}
+          elements={elements}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          onMove={updateElement}
+          editable
         />
       </div>
     </div>

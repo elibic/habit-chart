@@ -171,42 +171,88 @@ body {
   opacity: 0.55;
 }
 
+/* --- the movable elements ------------------------------------------------- */
+
+/* Above the grid, below the frame. It never takes pointer events itself, so
+   only the elements inside it are grabbable. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.floating {
+  position: absolute;
+  /* left/top place the element's centre, which is what makes dragging feel
+     right — you grab the middle and it stays under the pointer. */
+  transform: translate(-50%, -50%) scale(var(--el-scale, 1));
+  transform-origin: center;
+  max-width: 92%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.floating.is-editable {
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.floating.is-editable:active {
+  cursor: grabbing;
+}
+
+.floating.is-editable:focus-visible,
+.floating.is-selected {
+  outline: 2px dashed color-mix(in srgb, var(--c-accentDeep) 70%, #fff);
+  outline-offset: 4px;
+}
+
+/* --- shape variants ------------------------------------------------------- */
+
+.floating--pill {
+  border-radius: 999px;
+}
+
+.floating--card {
+  border-radius: calc(5mm * var(--k));
+}
+
+/* Words alone: no ground, no lift. Doubled class, because the shape rules sit
+   above the elements' own and would otherwise lose the tie on source order. */
+.floating.floating--plain {
+  background: transparent;
+  box-shadow: none;
+  border-radius: calc(3mm * var(--k));
+}
+
 /* --- header --------------------------------------------------------------- */
 
 .sheet-header {
   display: flex;
   height: var(--header-h);
-  align-items: center;
-  gap: calc(3mm * var(--k));
+  align-items: flex-end;
   flex: 0 0 auto;
   padding: 0 calc(3mm * var(--k));
   box-sizing: border-box;
-}
-
-.sheet-header__titles {
-  display: flex;
-  flex: 1 1 auto;
-  min-width: 0;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: calc(2mm * var(--k));
 }
 
 /* The topic, on a soft pill. */
 .topic-ribbon {
   margin: 0;
   max-width: 100%;
+  --el-bg: var(--c-accent);
+  --el-fg: #fff;
   padding: calc(1.5mm * var(--k)) calc(7mm * var(--k));
-  border-radius: 999px;
-  background: var(--c-accent);
-  box-shadow: 0 calc(1mm * var(--k)) calc(2.4mm * var(--k))
-    color-mix(in srgb, var(--c-accentDeep) 32%, transparent);
+  background: var(--el-bg);
+  box-shadow: 0 calc(1mm * var(--k)) calc(2.4mm * var(--k)) rgb(0 0 0 / 0.22);
   font-family: var(--font-display);
   font-size: calc(5.4mm * var(--k));
   font-weight: 500;
   line-height: 1.2;
-  color: #fff;
+  color: var(--el-fg);
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -225,13 +271,14 @@ body {
   letter-spacing: calc(-0.35mm * var(--k));
   /* Bright fill over a darker extrude — the depth has to fall away from the
      light, not toward it. Reversed, the name reads bleached. */
-  color: var(--c-nameFill);
+  color: var(--el-fg, var(--c-nameFill));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 calc(2mm * var(--k));
+  padding: calc(0.5mm * var(--k)) calc(3mm * var(--k));
   text-shadow:
-    0 calc(1.3mm * var(--k)) 0 var(--c-accentDeep),
+    0 calc(1.3mm * var(--k)) 0
+      color-mix(in srgb, var(--el-fg, var(--c-nameFill)) 62%, #000),
     0 calc(3.4mm * var(--k)) calc(2.6mm * var(--k)) rgb(0 0 0 / 0.16),
     /* Backdrops are supplied by whoever prints the chart and can be dark;
        this separates the letters from the ground without a keyline. */
@@ -246,15 +293,15 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  --el-bg: #fff;
+  --el-fg: var(--c-accentDeep);
   gap: calc(0.4mm * var(--k));
   width: calc(42mm * var(--k));
   padding: calc(2.4mm * var(--k)) calc(2.5mm * var(--k));
-  border-radius: calc(5mm * var(--k));
-  background: #fff;
-  box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k))
-    color-mix(in srgb, var(--c-ink) 16%, transparent);
+  background: var(--el-bg);
+  box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k)) rgb(0 0 0 / 0.2);
   font-family: var(--font-display);
-  color: var(--c-accentDeep);
+  color: var(--el-fg);
   text-align: center;
 }
 
@@ -496,12 +543,13 @@ body {
 .plaque {
   display: flex;
   align-items: center;
+  --el-bg: #fff;
+  --el-fg: var(--c-accentDeep);
   gap: calc(3mm * var(--k));
   padding: calc(1.8mm * var(--k)) calc(9mm * var(--k));
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k))
-    color-mix(in srgb, var(--c-ink) 16%, transparent);
+  background: var(--el-bg);
+  box-shadow: 0 calc(1.2mm * var(--k)) calc(2.8mm * var(--k)) rgb(0 0 0 / 0.2);
+  white-space: nowrap;
 }
 
 .plaque__text {
@@ -509,7 +557,7 @@ body {
   font-size: calc(5.2mm * var(--k));
   font-weight: 500;
   line-height: 1.15;
-  color: var(--c-accentDeep);
+  color: var(--el-fg);
 }
 
 .plaque__star {
@@ -530,6 +578,11 @@ body {
 }
 
 @media print {
+  /* Editing chrome is for the screen. */
+  .floating {
+    outline: none !important;
+  }
+
   /* Force the themed backgrounds onto paper instead of letting the browser
      helpfully drop them. */
   html,

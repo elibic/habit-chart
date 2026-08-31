@@ -5,6 +5,18 @@ calendar. A parent types the child's name and the habit, picks the stretch of
 days to cover, a paper size and a theme, and prints one landscape page with an
 empty white circle for every day — one circle, or two labelled בוקר and ערב.
 
+The four things that float over the sheet — the topic ribbon, the child's
+name, the date chip and the footer plaque — can be picked up and moved. Click
+one in the preview and drag it, or nudge it with the arrow keys; the panel
+beside it sets the text, the size, the shape (pill, card, or words with no
+ground behind them), the colours, and whether it appears at all.
+
+Positions are stored as percentages of the sheet rather than millimetres, so a
+layout arranged on A4 lands in the same place on A3. Colours stay `null` until
+someone actually picks one, which is what keeps a moved element from freezing
+the palette of whichever theme happened to be on screen at the time — leave a
+colour alone and it still follows the theme.
+
 Two ways to set the range:
 
 - **חודש שלם** — one Hebrew month, א׳ to its last day.
@@ -77,8 +89,11 @@ src/
     hebrewCalendar.js        everything built on @hebcal/core
     layout.js                page geometry, in millimetres
     themes.js                palettes + artwork paths
+    elements.js              the movable elements and their defaults
   components/
     ControlPanel.jsx         the form (hidden at print time)
+    ElementInspector.jsx     properties for the selected floating element
+    FloatingElement.jsx      one draggable element on the sheet
     ChartPreview.jsx         scales the sheet to fit the screen
     ChartSheet.jsx           the printable sheet itself
     AssetImage.jsx           an image that is allowed to 404
@@ -176,6 +191,8 @@ Checked in Chromium against a real print run:
   420×297 mm (A3).
 - Every artwork slot missing: the page still renders and prints complete, on
   its CSS fallbacks.
+- Dragging, resizing, recolouring, restyling, hiding and resetting a floating
+  element; the edits survive into the PDF and the selection outline does not.
 
 ---
 

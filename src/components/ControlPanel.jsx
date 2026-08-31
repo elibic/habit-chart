@@ -7,6 +7,7 @@ import {
 } from '../lib/hebrewCalendar'
 import { HDate } from '@hebcal/core'
 import { SunIcon, MoonIcon } from './Icons'
+import ElementInspector from './ElementInspector'
 
 const field = 'flex flex-col gap-1.5'
 const label = 'text-sm font-bold text-slate-700'
@@ -17,7 +18,16 @@ const input =
  * Everything the parent can change. Hidden entirely at print time by the
  * `no-print` class — see index.css.
  */
-export default function ControlPanel({ settings, onChange, onPrint }) {
+export default function ControlPanel({
+  settings,
+  onChange,
+  onPrint,
+  elements,
+  selectedId,
+  onSelect,
+  onElementChange,
+  onElementReset,
+}) {
   const set = (key) => (event) => onChange({ [key]: event.target.value })
 
   const years = yearOptions()
@@ -280,6 +290,16 @@ export default function ControlPanel({ settings, onChange, onPrint }) {
             </select>
           </div>
         </div>
+
+        <ElementInspector
+          settings={settings}
+          onChange={onChange}
+          elements={elements}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onElementChange={onElementChange}
+          onElementReset={onElementReset}
+        />
 
         <button
           type="button"

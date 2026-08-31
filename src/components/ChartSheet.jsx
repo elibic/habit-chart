@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AssetImage from './AssetImage'
+import FloatingElement from './FloatingElement'
 import { SunIcon, MoonIcon } from './Icons'
 import { WEEKDAY_NAMES, WEEKDAY_SHORT } from '../lib/hebrewCalendar'
 import { assetPath, themeCssVars } from '../lib/themes'
@@ -17,7 +18,17 @@ import { layoutCssVars } from '../lib/layout'
  * Strictly RTL: the grid's first column renders on the right, which puts
  * יום ראשון on the right and שבת on the left with no manual reordering.
  */
-export default function ChartSheet({ theme, layout, grid, settings }) {
+export default function ChartSheet({
+  theme,
+  layout,
+  grid,
+  settings,
+  elements,
+  selectedId,
+  onSelect,
+  onMove,
+  editable = false,
+}) {
   const stickers = Number(settings.stickersPerDay)
   const style = { ...themeCssVars(theme), ...layoutCssVars(layout) }
   const childName = settings.childName.trim()
@@ -50,7 +61,7 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
       />
 
       <div className="sheet-inner">
-        <header className="sheet-header">
+        <header className="sheet-header" aria-hidden="true">
           <AssetImage
             src={assetPath(theme.id, 'hero')}
             className="deco deco--hero"
@@ -58,36 +69,6 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
             fallback={placeholder}
             alt=""
           />
-          <div className="sheet-header__titles">
-            {/* The topic sits on a solid ribbon rather than being outlined
-                like the name. A hard keyline reads as a poster at 20mm and
-                as mud at 6mm, so only the name gets one. */}
-            <p className="topic-ribbon">{settings.topic || 'הטבלה שלי'}</p>
-            <h1 className="sheet-name">{childName || ' '}</h1>
-          </div>
-          {/* Balances the hero on the other side of the title, and gives the
-              dates a home of their own instead of crowding the topic line. */}
-          <div className="date-chip">
-            {grid.period.kind === 'range' ? (
-              <>
-                <span className="date-chip__row">
-                  <span className="date-chip__tag">מ־</span>
-                  {grid.period.from}
-                </span>
-                <span className="date-chip__row">
-                  <span className="date-chip__tag">עד</span>
-                  {grid.period.to}
-                </span>
-                <span className="date-chip__year">{grid.period.year}</span>
-              </>
-            ) : (
-              <>
-                <span className="date-chip__tag">חודש</span>
-                <span className="date-chip__month">{grid.period.month}</span>
-                <span className="date-chip__year">{grid.period.year}</span>
-              </>
-            )}
-          </div>
         </header>
 
         <div className="sheet-body">
@@ -168,13 +149,80 @@ export default function ChartSheet({ theme, layout, grid, settings }) {
           </div>
         </div>
 
-        <footer className="sheet-footer">
-          <div className="plaque">
-            <span className="plaque__star">★</span>
-            <span className="plaque__text">כל הכבוד! ממשיכים ומצליחים</span>
-            <span className="plaque__star">★</span>
-          </div>
-        </footer>
+        <footer className="sheet-footer" aria-hidden="true" />
+      </div>
+
+      {/* Everything the parent can pick up and move. It sits above the grid
+          but below the frame, and is positioned in percentages of the sheet
+          so a layout arranged on A4 lands the same way on A3. */}
+      <div className="overlay">
+        <FloatingElement
+          id="topic"
+          element={elements.topic}
+          selected={selectedId === 'topic'}
+          onSelect={onSelect}
+          onMove={onMove}
+          editable={editable}
+          className="topic-ribbon"
+        >
+          {settings.topic || 'הטבלה שלי'}
+        </FloatingElement>
+
+        <FloatingElement
+          id="name"
+          element={elements.name}
+          selected={selectedId === 'name'}
+          onSelect={onSelect}
+          onMove={onMove}
+          editable={editable}
+          className="sheet-name"
+        >
+          {childName || 'השם שלי'}
+        </FloatingElement>
+
+        <FloatingElement
+          id="dateChip"
+          element={elements.dateChip}
+          selected={selectedId === 'dateChip'}
+          onSelect={onSelect}
+          onMove={onMove}
+          editable={editable}
+          className="date-chip"
+        >
+          {grid.period.kind === 'range' ? (
+            <>
+              <span className="date-chip__row">
+                <span className="date-chip__tag">מ־</span>
+                {grid.period.from}
+              </span>
+              <span className="date-chip__row">
+                <span className="date-chip__tag">עד</span>
+                {grid.period.to}
+              </span>
+              <span className="date-chip__year">{grid.period.year}</span>
+            </>
+          ) : (
+            <>
+              <span className="date-chip__tag">חודש</span>
+              <span className="date-chip__month">{grid.period.month}</span>
+              <span className="date-chip__year">{grid.period.year}</span>
+            </>
+          )}
+        </FloatingElement>
+
+        <FloatingElement
+          id="plaque"
+          element={elements.plaque}
+          selected={selectedId === 'plaque'}
+          onSelect={onSelect}
+          onMove={onMove}
+          editable={editable}
+          className="plaque"
+        >
+          <span className="plaque__star">★</span>
+          <span className="plaque__text">{settings.plaqueText}</span>
+          <span className="plaque__star">★</span>
+        </FloatingElement>
       </div>
 
       {/* Drawn last, over everything: the ornamental border. */}
