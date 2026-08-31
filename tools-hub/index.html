@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הכלים שלי</title>
+<meta name="description" content="דף אחד עם קישור והסבר לכל כלי שבניתי.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site-head">
+    <h1 id="title">הכלים שלי</h1>
+    <p id="subtitle">כל מה שבניתי, במקום אחד</p>
+  </header>
+
+  <div class="controls">
+    <input id="search" class="search" type="search" placeholder="חיפוש כלי…" aria-label="חיפוש כלי">
+    <div id="chips" class="chips"></div>
+  </div>
+
+  <main id="grid" class="grid" aria-live="polite"></main>
+
+  <footer class="site-foot">
+    <span id="count"></span>
+    <span class="spacer"></span>
+    <a href="./edit.html">עריכת הרשימה ←</a>
+  </footer>
+</div>
+
+<script src="./config.js"></script>
+<script>
+(() => {
+  'use strict'
+
+  const { owner, repo, branch, dataPath } = window.HUB_CONFIG
+  const grid = document.getElementById('grid')
+  const chipsBox = document.getElementById('chips')
+  const search = document.getElementById('search')
+  const countEl = document.getElementById('count')
+
+  let tools = []
+  let category = 'הכול'
+
+  // Two ways to reach the same file. The API copy is what the editor just
+  // committed — it is current within seconds; the file next to this page is
+  // whatever the last Pages deploy published, up to a minute behind. Ask the
+  // API first, but never let it hold the page up: three seconds and we take
+  // the published copy instead.
+  async function loadData() {
+    const fromApi = fetchJson(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${dataPath}?ref=${branch}`,
+      { headers: { Accept: 'application/vnd.github.raw+json' } },
+      3000,
+    )
+    const fromDisk = () => fetchJson(`./${dataPath}?t=${Date.now()}`, {}, 8000)
+    try {
+      return await fromApi
+    } catch {
+      return await fromDisk()
+    }
+  }
+
+  async function fetchJson(url, opts, ms) {
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), ms)
+    try {
+      const res = await fetch(url, { ...opts, signal: ctrl.signal, cache: 'no-store' })
+      if (!res.ok) throw new Error(res.status)
+      return await res.json()
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  function el(tag, attrs = {}, ...kids) {
+    const node = document.createElement(tag)
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v === null || v === undefined || v === false) continue
+      if (k === 'class') node.className = v
+      else if (k === 'text') node.textContent = v
+      else node.setAttribute(k, v)
+    }
+    for (const kid of kids) if (kid) node.append(kid)
+    return node
+  }
+
+  function card(tool) {
+    const live = tool.status !== 'wip' && !!tool.url
+    // A tool with a live address is the whole card; one without is a plain
+    // box, because a link that goes nowhere is worse than no link.
+    const root = el(live ? 'a' : 'div', {
+      class: 'card' + (live ? '' : ' is-wip'),
+      href: live ? tool.url : null,
+      rel: live ? 'noopener' : null,
+    })
+
+    root.append(
+      el('div', { class: 'card-top' },
+        el('div', { class: 'card-icon', text: tool.icon || '🧩', 'aria-hidden': 'true' }),
+        el('div', {},
+          el('h2', { text: tool.name || 'ללא שם' }),
+          tool.tagline ? el('p', { class: 'tagline', text: tool.tagline }) : null,
+        ),
+      ),
+    )
+
+    if (tool.description) root.append(el('p', { class: 'body', text: tool.description }))
+
+    const foot = el('div', { class: 'card-foot' })
+    foot.append(el('span', {
+      class: 'badge ' + (live ? 'badge-live' : 'badge-wip'),
+      text: live ? 'פעיל' : 'בבנייה',
+    }))
+    if (tool.category) foot.append(el('span', { class: 'badge badge-cat', text: tool.category }))
+    if (live) foot.append(el('span', { class: 'go', text: 'פתיחה ←' }))
+    root.append(foot)
+
+    return root
+  }
+
+  function categories() {
+    const seen = []
+    for (const t of tools) {
+      if (t.category && !seen.includes(t.category)) seen.push(t.category)
+    }
+    return ['הכול', ...seen]
+  }
+
+  function renderChips() {
+    chipsBox.replaceChildren(...categories().map(name => {
+      const chip = el('button', {
+        class: 'chip',
+        type: 'button',
+        'aria-pressed': String(name === category),
+        text: name,
+      })
+      chip.addEventListener('click', () => { category = name; render() })
+      return chip
+    }))
+  }
+
+  function render() {
+    const q = search.value.trim().toLowerCase()
+    const shown = tools.filter(t => {
+      if (t.hidden) return false
+      if (category !== 'הכול' && t.category !== category) return false
+      if (!q) return true
+      return [t.name, t.tagline, t.description, t.category]
+        .filter(Boolean).join(' ').toLowerCase().includes(q)
+    })
+
+    renderChips()
+    grid.replaceChildren(
+      ...(shown.length
+        ? shown.map(card)
+        : [el('p', { class: 'empty', text: 'אין כלי שמתאים לחיפוש.' })]),
+    )
+    countEl.textContent = shown.length === tools.filter(t => !t.hidden).length
+      ? `${shown.length} כלים`
+      : `${shown.length} מתוך ${tools.filter(t => !t.hidden).length}`
+  }
+
+  search.addEventListener('input', render)
+
+  loadData().then(data => {
+    if (data.title) document.getElementById('title').textContent = data.title
+    if (data.title) document.title = data.title
+    if (data.subtitle) document.getElementById('subtitle').textContent = data.subtitle
+    tools = Array.isArray(data.tools) ? data.tools : []
+    render()
+  }).catch(err => {
+    grid.replaceChildren(el('p', { class: 'empty', text: 'לא הצלחתי לטעון את רשימת הכלים. רענן את הדף.' }))
+    console.error(err)
+  })
+})()
+</script>
+</body>
+</html>

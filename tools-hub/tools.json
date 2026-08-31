@@ -1,0 +1,54 @@
+{
+  "title": "הכלים שלי",
+  "subtitle": "כל מה שבניתי, במקום אחד",
+  "tools": [
+    {
+      "id": "habit-chart",
+      "name": "טבלת הרגלים לילדים",
+      "tagline": "מחולל טבלאות מדבקות להדפסה, על הלוח העברי",
+      "description": "מזינים שם של ילד והרגל, בוחרים חודש עברי או מספר שבועות מתאריך, גודל נייר ורקע — ומקבלים דף אחד להדפסה עם עיגול ריק לכל יום. אפשר להזיז ולערוך את הכותרת, השם והתאריך ישירות על הדף.",
+      "url": "https://elibic.github.io/habit-chart/",
+      "repo": "https://github.com/elibic/habit-chart",
+      "icon": "⭐",
+      "category": "משפחה",
+      "status": "live",
+      "hidden": false
+    },
+    {
+      "id": "kubi-cube",
+      "name": "סדנת הקוביה של קובי",
+      "tagline": "מלמד ילד בן 6 לפתור קוביה הונגרית, בעברית מדוברת",
+      "description": "הילד סורק את הקוביה האמיתית שלו פעם אחת, ומשם קובי — רובוט־קוביה — מלווה אותו צעד אחר צעד בתשעה עולמות, עם קול בעברית, כיתוביות מנוקדות, כוכבים ותעודת אלוף להדפסה. ההתקדמות נשמרת, כי פתרון אמיתי לוקח יותר מישיבה אחת.",
+      "url": "https://elibic.github.io/kubi-cube-workshop/",
+      "repo": "https://github.com/elibic/kubi-cube-workshop",
+      "icon": "🧊",
+      "category": "לימוד",
+      "status": "live",
+      "hidden": false
+    },
+    {
+      "id": "monopoly",
+      "name": "מונופול",
+      "tagline": "לוח מונופול לשחק בו מהדפדפן",
+      "description": "גרסה משפחתית של מונופול שרצה בדפדפן, בלי התקנה. עדכן כאן את התיאור המדויק — הטקסט הזה נערך מדף העריכה.",
+      "url": "https://elibic.github.io/monopoly/",
+      "repo": "https://github.com/elibic/monopoly",
+      "icon": "🎩",
+      "category": "משחקים",
+      "status": "live",
+      "hidden": false
+    },
+    {
+      "id": "mivtza",
+      "name": "דף מבצע",
+      "tagline": "כאן חסר הקישור — פתח את דף העריכה והדבק אותו",
+      "description": "הכרטיס הזה נשאר בלי כתובת כדי להראות איך זה נראה: כלי בלי קישור מוצג כ״בבנייה״ ולא ניתן ללחיצה. היכנס לדף העריכה, הדבק את הכתובת ושנה את הסטטוס ל״פעיל״.",
+      "url": "",
+      "repo": "",
+      "icon": "🏷️",
+      "category": "עבודה",
+      "status": "wip",
+      "hidden": false
+    }
+  ]
+}

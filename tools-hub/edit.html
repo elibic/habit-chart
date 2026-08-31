@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>עריכת הכלים</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site-head">
+    <h1>עריכת הכלים</h1>
+    <p>מוסיפים כלי, כותבים הסבר, שומרים — והדף מתעדכן.</p>
+  </header>
+
+  <!-- ── login ──────────────────────────────────────────────────────── -->
+  <section id="login" class="panel">
+    <h2>כניסה</h2>
+    <p class="lead">העריכה נשמרת ישירות לריפו בגיטהאב, ולכן היא דורשת מפתח אישי שלך. המפתח נשמר רק בדפדפן הזה.</p>
+
+    <label class="field">
+      <span>מפתח גישה (Personal access token)</span>
+      <input id="token" type="password" autocomplete="off" placeholder="github_pat_…">
+    </label>
+
+    <div class="row" style="align-items:center">
+      <button id="login-btn" class="btn btn-primary" type="button">התחברות</button>
+      <span id="login-status" class="status"></span>
+    </div>
+
+    <p class="note" style="margin-top:18px">
+      איך מייצרים מפתח, פעם אחת:
+      נכנסים ל־<a id="pat-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained tokens</a>,
+      בוחרים <code>Only select repositories</code> ומסמנים את הריפו של הדף הזה,
+      ותחת <code>Repository permissions</code> נותנים ל־<code>Contents</code> את הערך <code>Read and write</code>.
+      זה כל מה שצריך — אין טעם לתת יותר.
+    </p>
+  </section>
+
+  <!-- ── editor ─────────────────────────────────────────────────────── -->
+  <section id="editor" class="hidden">
+
+    <div class="panel">
+      <h2>כותרת הדף</h2>
+      <p class="lead">מה שמופיע בראש דף הכלים.</p>
+      <div class="row">
+        <label class="field"><span>כותרת</span><input id="page-title" type="text"></label>
+        <label class="field"><span>שורת משנה</span><input id="page-subtitle" type="text"></label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>הכלים</h2>
+      <p class="lead">לחיצה על שם של כלי פותחת אותו לעריכה. הסדר כאן הוא הסדר בדף.</p>
+      <div id="items"></div>
+      <button id="add-btn" class="btn" type="button">+ כלי חדש</button>
+    </div>
+
+    <div class="sticky-bar">
+      <button id="save-btn" class="btn btn-primary" type="button">שמירה</button>
+      <a class="btn btn-quiet" href="./index.html" target="_blank" rel="noopener">צפייה בדף ↗</a>
+      <span id="save-status" class="status"></span>
+      <span class="spacer" style="margin-inline-start:auto"></span>
+      <button id="logout-btn" class="btn btn-quiet btn-small" type="button">יציאה</button>
+    </div>
+  </section>
+</div>
+
+<script src="./config.js"></script>
+<script>
+(() => {
+  'use strict'
+
+  const { owner, repo, branch, dataPath } = window.HUB_CONFIG
+  const API = `https://api.github.com/repos/${owner}/${repo}/contents/${dataPath}`
+  const TOKEN_KEY = `hub-token:${owner}/${repo}`
+
+  const $ = id => document.getElementById(id)
+  const STATUSES = [['live', 'פעיל'], ['wip', 'בבנייה']]
+
+  let token = ''
+  let data = { title: '', subtitle: '', tools: [] }
+  let sha = null            // the file version we loaded, so a save cannot clobber a newer one
+  let savedSnapshot = ''    // what is currently in the repo, to know whether anything changed
+  const expanded = new Set()
+
+  // ── plumbing ──────────────────────────────────────────────────────
+
+  const encode = str => {
+    const bytes = new TextEncoder().encode(str)
+    let binary = ''
+    for (const b of bytes) binary += String.fromCharCode(b)
+    return btoa(binary)
+  }
+
+  const decode = b64 => {
+    const binary = atob(b64.replace(/\s/g, ''))
+    const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0))
+    return new TextDecoder().decode(bytes)
+  }
+
+  async function api(url, opts = {}) {
+    const res = await fetch(url, {
+      ...opts,
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+        ...(opts.headers || {}),
+      },
+    })
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      const err = new Error(body.message || `שגיאה ${res.status}`)
+      err.status = res.status
+      throw err
+    }
+    return body
+  }
+
+  function el(tag, attrs = {}, ...kids) {
+    const node = document.createElement(tag)
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v === null || v === undefined || v === false) continue
+      if (k === 'class') node.className = v
+      else if (k === 'text') node.textContent = v
+      else node.setAttribute(k, v)
+    }
+    for (const kid of kids) if (kid) node.append(kid)
+    return node
+  }
+
+  const serialise = () => JSON.stringify(data, null, 2) + '\n'
+  const isDirty = () => serialise() !== savedSnapshot
+
+  function markDirty() {
+    $('save-status').className = 'status'
+    $('save-status').textContent = isDirty() ? 'יש שינויים שלא נשמרו' : ''
+  }
+
+  // ── login ─────────────────────────────────────────────────────────
+
+  async function signIn(candidate, quiet) {
+    token = candidate
+    const status = $('login-status')
+    status.className = 'status'
+    status.textContent = 'בודק…'
+    try {
+      const file = await api(`${API}?ref=${branch}`)
+      sha = file.sha
+      const parsed = JSON.parse(decode(file.content))
+      data = {
+        title: parsed.title || 'הכלים שלי',
+        subtitle: parsed.subtitle || '',
+        tools: Array.isArray(parsed.tools) ? parsed.tools : [],
+      }
+      savedSnapshot = serialise()
+      localStorage.setItem(TOKEN_KEY, token)
+      status.textContent = ''
+      $('login').classList.add('hidden')
+      $('editor').classList.remove('hidden')
+      $('page-title').value = data.title
+      $('page-subtitle').value = data.subtitle
+      renderItems()
+      markDirty()
+    } catch (err) {
+      token = ''
+      if (quiet) {           // a stale saved token: drop it and just show the form
+        localStorage.removeItem(TOKEN_KEY)
+        status.textContent = ''
+        return
+      }
+      status.className = 'status err'
+      status.textContent = err.status === 404
+        ? 'המפתח לא מגיע לריפו הזה — ודא שסימנת אותו ברשימת הריפואים ונתת Contents: Read and write.'
+        : err.status === 401
+          ? 'המפתח לא תקין או פג תוקפו.'
+          : `לא הצלחתי להיכנס: ${err.message}`
+    }
+  }
+
+  $('login-btn').addEventListener('click', () => {
+    const value = $('token').value.trim()
+    if (!value) {
+      $('login-status').className = 'status err'
+      $('login-status').textContent = 'צריך להדביק מפתח.'
+      return
+    }
+    signIn(value, false)
+  })
+
+  $('token').addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') $('login-btn').click()
+  })
+
+  $('logout-btn').addEventListener('click', () => {
+    if (isDirty() && !confirm('יש שינויים שלא נשמרו. לצאת בכל זאת?')) return
+    localStorage.removeItem(TOKEN_KEY)
+    location.reload()
+  })
+
+  // ── the list ──────────────────────────────────────────────────────
+
+  function field(label, hint, control) {
+    return el('label', { class: 'field' },
+      el('span', {}, document.createTextNode(label), hint ? el('span', { class: 'hint', text: ' — ' + hint }) : null),
+      control,
+    )
+  }
+
+  function input(tool, key, type = 'text', placeholder = '') {
+    const node = el('input', { type, placeholder, value: tool[key] || '' })
+    node.addEventListener('input', () => {
+      tool[key] = node.value
+      if (key === 'name' || key === 'tagline' || key === 'url') renderHead(tool)
+      markDirty()
+    })
+    return node
+  }
+
+  function renderHead(tool) {
+    const row = document.querySelector(`[data-id="${CSS.escape(tool.id)}"]`)
+    if (!row) return
+    row.querySelector('.name').textContent = `${tool.icon || '🧩'} ${tool.name || 'כלי חדש'}`
+    row.querySelector('.sub').textContent = tool.url || 'אין קישור עדיין'
+    row.classList.toggle('is-hidden', !!tool.hidden)
+  }
+
+  function itemBody(tool) {
+    const body = el('div', { class: 'item-body' })
+
+    const statusSelect = el('select', {},
+      ...STATUSES.map(([value, label]) => {
+        const opt = el('option', { value, text: label })
+        if ((tool.status || 'live') === value) opt.selected = true
+        return opt
+      }))
+    statusSelect.addEventListener('change', () => { tool.status = statusSelect.value; markDirty() })
+
+    const descBox = el('textarea', { placeholder: 'מה הכלי עושה, במשפט או שניים' })
+    descBox.value = tool.description || ''
+    descBox.addEventListener('input', () => { tool.description = descBox.value; markDirty() })
+
+    const hideBox = el('input', { type: 'checkbox' })
+    hideBox.checked = !!tool.hidden
+    hideBox.addEventListener('change', () => { tool.hidden = hideBox.checked; renderHead(tool); markDirty() })
+
+    body.append(
+      el('div', { class: 'row' },
+        field('אייקון', 'אימוג׳י אחד', input(tool, 'icon', 'text', '🧩')),
+        field('שם הכלי', '', input(tool, 'name', 'text', 'שם קצר')),
+      ),
+      field('שורה אחת', 'מה זה, בחצי שורה', input(tool, 'tagline', 'text', 'למה הכלי הזה קיים')),
+      field('הסבר', '', descBox),
+      el('div', { class: 'row' },
+        field('כתובת הכלי', '', input(tool, 'url', 'url', 'https://…')),
+        field('קוד מקור', 'לא חובה', input(tool, 'repo', 'url', 'https://github.com/…')),
+      ),
+      el('div', { class: 'row' },
+        field('קטגוריה', 'הופכת לכפתור סינון', input(tool, 'category', 'text', 'משחקים')),
+        field('סטטוס', '', statusSelect),
+      ),
+      el('label', { class: 'field' },
+        el('span', { style: 'display:flex;gap:8px;align-items:center;font-weight:600' },
+          hideBox, document.createTextNode('להסתיר מהדף (נשאר שמור כאן)')),
+      ),
+    )
+    return body
+  }
+
+  function renderItems() {
+    const box = $('items')
+    box.replaceChildren(...data.tools.map((tool, index) => {
+      if (!tool.id) tool.id = `tool-${Math.random().toString(36).slice(2, 8)}`
+      const item = el('div', { class: 'item' + (tool.hidden ? ' is-hidden' : ''), 'data-id': tool.id })
+
+      const toggle = el('button', { class: 'toggle', type: 'button' },
+        el('span', { class: 'name', text: `${tool.icon || '🧩'} ${tool.name || 'כלי חדש'}` }),
+        el('span', { class: 'sub', text: tool.url || 'אין קישור עדיין' }),
+      )
+      toggle.addEventListener('click', () => {
+        if (expanded.has(tool.id)) expanded.delete(tool.id)
+        else expanded.add(tool.id)
+        renderItems()
+      })
+
+      const up = el('button', { class: 'btn btn-small btn-quiet', type: 'button', title: 'למעלה', text: '↑' })
+      up.disabled = index === 0
+      up.addEventListener('click', () => move(index, -1))
+
+      const down = el('button', { class: 'btn btn-small btn-quiet', type: 'button', title: 'למטה', text: '↓' })
+      down.disabled = index === data.tools.length - 1
+      down.addEventListener('click', () => move(index, 1))
+
+      const del = el('button', { class: 'btn btn-small btn-danger', type: 'button', text: 'מחיקה' })
+      del.addEventListener('click', () => {
+        if (!confirm(`למחוק את "${tool.name || 'הכלי'}"?`)) return
+        data.tools.splice(index, 1)
+        renderItems()
+        markDirty()
+      })
+
+      item.append(el('div', { class: 'item-head' }, toggle,
+        el('div', { class: 'tools' }, up, down, del)))
+      if (expanded.has(tool.id)) item.append(itemBody(tool))
+      return item
+    }))
+  }
+
+  function move(index, delta) {
+    const target = index + delta
+    if (target < 0 || target >= data.tools.length) return
+    const [tool] = data.tools.splice(index, 1)
+    data.tools.splice(target, 0, tool)
+    renderItems()
+    markDirty()
+  }
+
+  $('add-btn').addEventListener('click', () => {
+    const tool = {
+      id: `tool-${Math.random().toString(36).slice(2, 8)}`,
+      name: '', tagline: '', description: '', url: '', repo: '',
+      icon: '🧩', category: '', status: 'live', hidden: false,
+    }
+    data.tools.push(tool)
+    expanded.add(tool.id)
+    renderItems()
+    markDirty()
+    document.querySelector(`[data-id="${CSS.escape(tool.id)}"] input`)?.focus()
+  })
+
+  $('page-title').addEventListener('input', ev => { data.title = ev.target.value; markDirty() })
+  $('page-subtitle').addEventListener('input', ev => { data.subtitle = ev.target.value; markDirty() })
+
+  // ── saving ────────────────────────────────────────────────────────
+
+  $('save-btn').addEventListener('click', async () => {
+    const status = $('save-status')
+    const btn = $('save-btn')
+    btn.disabled = true
+    status.className = 'status'
+    status.textContent = 'שומר…'
+    const payload = serialise()
+    try {
+      const res = await api(API, {
+        method: 'PUT',
+        body: JSON.stringify({
+          message: 'עדכון רשימת הכלים',
+          content: encode(payload),
+          sha,
+          branch,
+        }),
+      })
+      sha = res.content.sha
+      savedSnapshot = payload
+      status.className = 'status ok'
+      status.textContent = 'נשמר. הדף מתעדכן תוך כדקה.'
+    } catch (err) {
+      status.className = 'status err'
+      status.textContent = err.status === 409
+        ? 'הקובץ השתנה בינתיים מכיוון אחר. רענן את הדף וערוך מחדש.'
+        : `השמירה נכשלה: ${err.message}`
+    } finally {
+      btn.disabled = false
+    }
+  })
+
+  window.addEventListener('beforeunload', ev => {
+    if (!isDirty()) return
+    ev.preventDefault()
+    ev.returnValue = ''
+  })
+
+  // A token from a previous visit signs you straight in; if it has expired we
+  // drop it quietly and show the login form.
+  const saved = localStorage.getItem(TOKEN_KEY)
+  $('pat-link').href = 'https://github.com/settings/personal-access-tokens/new'
+  if (saved) signIn(saved, true)
+})()
+</script>
+</body>
+</html>
